@@ -1126,6 +1126,7 @@ GameObject:
   - component: {fileID: 1369191907}
   - component: {fileID: 1369191909}
   - component: {fileID: 1369191908}
+  - component: {fileID: 1369191910}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1207,6 +1208,21 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1369191910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369191906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9fe5efdcfc9f2444bd15d37f7c75e02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1574930786}
+  offset: {x: 41.657, y: 0, z: 0}
+  followSpeed: 5
 --- !u!1 &1388112307
 GameObject:
   m_ObjectHideFlags: 0
@@ -1225,7 +1241,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1388112308
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1895,6 +1911,7 @@ GameObject:
   - component: {fileID: 1980264418}
   - component: {fileID: 1980264420}
   - component: {fileID: 1980264419}
+  - component: {fileID: 1980264421}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1976,6 +1993,21 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1980264421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1980264417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9fe5efdcfc9f2444bd15d37f7c75e02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1695430052}
+  offset: {x: 41.657, y: 0, z: 0}
+  followSpeed: 5
 --- !u!1 &1982011680
 GameObject:
   m_ObjectHideFlags: 0

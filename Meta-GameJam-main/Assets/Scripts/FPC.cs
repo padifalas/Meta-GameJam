@@ -17,7 +17,7 @@ public class FirstPersonControls : MonoBehaviour
                                    // Private variables to store input values and the character controller
     private Vector2 moveInput; // Stores the movement input from the player
     private Vector2 lookInput; // Stores the look input from the player
-    private float verticalLookRotation = 0f; // Keeps track of vertical camera rotation for clamping
+   
     private Vector3 velocity; // Velocity of the player
     private CharacterController characterController; // Reference to the CharacterController component
 
@@ -95,29 +95,24 @@ public class FirstPersonControls : MonoBehaviour
         ApplyGravity();
     }
 
-    public void Move()
-    {
-        // Create a movement vector based on the input
-        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
-
-        // Transform direction from local to world space
-        move = transform.TransformDirection(move);
-
-        // Adjust speed if crouching
-        float currentSpeed;
-        if (isCrouching)
+    
+        public void Move()
         {
-            currentSpeed = crouchSpeed;
-        }
-        else
-        {
-            currentSpeed = moveSpeed;
+            // World-space movement
+            Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+
+            if (move.magnitude >= 0.1f)
+            {
+                // Face movement direction
+                Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
+            }
+
+            float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
+            characterController.Move(move * currentSpeed * Time.deltaTime);
         }
 
-
-        // Move the character controller based on the movement vector and speed
-        characterController.Move(move * currentSpeed * Time.deltaTime);
-    }
+   
 
     public void LookAround()
     {
