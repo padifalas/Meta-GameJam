@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FirstPersonControls : MonoBehaviour
+public class FPC2 : MonoBehaviour
 {
 
     [Header("MOVEMENT SETTINGS")]
@@ -12,12 +12,12 @@ public class FirstPersonControls : MonoBehaviour
     public float lookSpeed; // Sensitivity of the camera movement
     public float gravity = -9.81f; // Gravity value
     public float jumpHeight = 1.0f; // Height of the jump
-    
+
     public Transform player; // Reference to the player's camera
-                                   // Private variables to store input values and the character controller
+                             // Private variables to store input values and the character controller
     private Vector2 moveInput; // Stores the movement input from the player
     private Vector2 lookInput; // Stores the look input from the player
-   
+
     private Vector3 velocity; // Velocity of the player
     private CharacterController characterController; // Reference to the CharacterController component
 
@@ -61,36 +61,36 @@ public class FirstPersonControls : MonoBehaviour
         var playerInput = new Controls();
 
         // Enable the input actions
-        playerInput.Player.Enable();
+        playerInput.Player2.Enable();
 
         // Subscribe to the movement input events
-        playerInput.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>(); // Update moveInput when movement input is performed
-        playerInput.Player.Move.canceled += ctx => moveInput = Vector2.zero; // Reset moveInput when movement input is canceled
+        playerInput.Player2.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>(); // Update moveInput when movement input is performed
+        playerInput.Player2.Move.canceled += ctx => moveInput = Vector2.zero; // Reset moveInput when movement input is canceled
 
         // Subscribe to the look input events
         //playerInput.Player.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>(); // Update lookInput when look input is performed
         //playerInput.Player.Look.canceled += ctx => lookInput = Vector2.zero; // Reset lookInput when look input is canceled
 
         // Subscribe to the jump input event
-        playerInput.Player.Jump.performed += ctx => Jump(); // Call the Jump method when jump input is performed
+        playerInput.Player2.Jump.performed += ctx => Jump(); // Call the Jump method when jump input is performed
 
         // Subscribe to the shoot input event
-        playerInput.Player.Shoot.performed += ctx => Shoot(); // Call the Shoot method when shoot input is performed
+        playerInput.Player2.Shoot.performed += ctx => Shoot(); // Call the Shoot method when shoot input is performed
 
         // Subscribe to the pick-up input event
-        playerInput.Player.PickUp.performed += ctx => PickUpObject(); // Call the PickUpObject method when pick-up input is performed
+        playerInput.Player2.PickUp.performed += ctx => PickUpObject(); // Call the PickUpObject method when pick-up input is performed
 
         // Subscribe to the crouch input event
-        playerInput.Player.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
+        playerInput.Player2.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
 
         // Subscribe to the interact input event
-        playerInput.Player.Interact.performed += ctx => Interact(); // Interact with switch
+        playerInput.Player2.Interact.performed += ctx => Interact(); // Interact with switch
 
-        playerInput.Player.Sprint.performed += ctx => Sprinting();
+        playerInput.Player2.Sprint.performed += ctx => Sprinting();
 
-        playerInput.Player.Sprint.canceled += ctx => SprintingStopped();
+        playerInput.Player2.Sprint.canceled += ctx => SprintingStopped(); 
 
-        playerInput.Player.Sprint.canceled += ctx => Walking();
+        playerInput.Player2.Sprint.canceled += ctx => Walking(); 
     }
 
     private void Update()
@@ -101,24 +101,24 @@ public class FirstPersonControls : MonoBehaviour
         ApplyGravity();
     }
 
-    
-        public void Move()
+
+    public void Move()
+    {
+        // World-space movement
+        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+
+        if (move.magnitude >= 0.1f)
         {
-            // World-space movement
-            Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-
-            if (move.magnitude >= 0.1f)
-            {
-                // Face movement direction
-                Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
-            }
-
-            float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
-            characterController.Move(move * currentSpeed * Time.deltaTime);
+            // Face movement direction
+            Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-   
+        float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
+        characterController.Move(move * currentSpeed * Time.deltaTime);
+    }
+
+
 
     public void LookAround()
     {
@@ -126,10 +126,10 @@ public class FirstPersonControls : MonoBehaviour
         float LookX = lookInput.x * lookSpeed;
         float LookY = lookInput.y * lookSpeed;
 
-       
+
 
         transform.Rotate(0, LookX, 0); // rotates player (fine)
-       
+
     }
 
     public void ApplyGravity()
@@ -253,13 +253,14 @@ public class FirstPersonControls : MonoBehaviour
                 }
             }
 
-           
+
         }
     }
 
+
     public void Sprinting()
     {
-        moveSpeed = +10;
+        moveSpeed = +10; 
     }
 
     public void SprintingStopped()
@@ -269,9 +270,7 @@ public class FirstPersonControls : MonoBehaviour
 
     public void Walking()
     {
-        moveSpeed = 2;
+        moveSpeed = 2; 
     }
 
-
 }
-
