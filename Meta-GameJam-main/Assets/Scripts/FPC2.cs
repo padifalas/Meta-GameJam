@@ -60,7 +60,8 @@ public class FPC2 : MonoBehaviour
     public Material switchMaterial; // Material to apply when switch is activated
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
-
+    [Header("VISUAL EFFECTS")]
+    public ParticleSystem speedSpikes;
 
     private void Awake()
     {
@@ -121,6 +122,18 @@ public class FPC2 : MonoBehaviour
         ApplyGravity();
 
         isBoosted = Time.time < speedBoostEndTime; // Check if the speed boost is still active
+
+        if (speedSpikes != null)
+        {
+            if (isBoosted && !speedSpikes.isPlaying)
+            {
+                speedSpikes.Play();
+            }
+            else if (!isBoosted && speedSpikes.isPlaying)
+            {
+                speedSpikes.Stop();
+            }
+        }
     }
 
 

@@ -58,7 +58,8 @@ public class FirstPersonControls : MonoBehaviour
     public Material switchMaterial; // Material to apply when switch is activated
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
-
+    [Header("VISUAL EFFECTS")]
+    public ParticleSystem speedSpikes;
 
     private void Awake()
     {   
@@ -122,6 +123,18 @@ public class FirstPersonControls : MonoBehaviour
 
         // Handle speed boost expiration
         isBoosted = Time.time < speedBoostEndTime;
+
+        if (speedSpikes != null)
+        {
+            if (isBoosted && !speedSpikes.isPlaying)
+            {
+                speedSpikes.Play();
+            }
+            else if (!isBoosted && speedSpikes.isPlaying)
+            {
+                speedSpikes.Stop();
+            }
+        }
     }
 
     private void Move()
