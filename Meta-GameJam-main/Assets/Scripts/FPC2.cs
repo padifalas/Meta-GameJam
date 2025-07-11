@@ -21,6 +21,18 @@ public class FPC2 : MonoBehaviour
     private Vector3 velocity; // Velocity of the player
     private CharacterController characterController; // Reference to the CharacterController component
 
+
+    private float originalMoveSpeed = 2f;
+    private float originalCrouchSpeed = 2.5f;
+    private float speedBoostEndTime = 0f;
+    private bool isBoosted = false; // Whether the player is currently boosted
+    public float speedBoostAmount = 5f;
+
+    [Header("speed  UP SETTINGS")]
+    [Space(5)]
+    private SpeedPowerUp speedPowerUp; // Position where the picked-up object will be held
+
+
     [Header("SHOOTING SETTINGS")]
     [Space(5)]
     public GameObject projectilePrefab; // Projectile prefab for shooting
@@ -53,6 +65,7 @@ public class FPC2 : MonoBehaviour
     {
         // Get and store the CharacterController component attached to this GameObject
         characterController = GetComponent<CharacterController>();
+        speedPowerUp = GetComponent<SpeedPowerUp>();
     }
 
     private void OnEnable()
@@ -93,12 +106,20 @@ public class FPC2 : MonoBehaviour
         playerInput.Player2.Sprint.canceled += ctx => Walking(); 
     }
 
+    private void Start()
+    {
+        originalMoveSpeed = moveSpeed; // Use whatever value is set in Inspector
+        originalCrouchSpeed = crouchSpeed;
+
+    }
     private void Update()
     {
         // Call Move and LookAround methods every frame to handle player movement and camera rotation
         Move();
         LookAround();
         ApplyGravity();
+
+        isBoosted = Time.time < speedBoostEndTime; // Check if the speed boost is still active
     }
 
 
@@ -257,20 +278,33 @@ public class FPC2 : MonoBehaviour
         }
     }
 
+    public void ApplySpeedBoost(float duration)
+    {
+
+        speedBoostEndTime = Time.time + duration;
+        moveSpeed = originalMoveSpeed * speedBoostAmount; // Always apply boost
+        crouchSpeed = originalCrouchSpeed * 1.5f; // Boost crouch speed too if needed
+        Debug.Log("Speed Boost Applied");
+    }
 
     public void Sprinting()
     {
-        moveSpeed = +10; 
+        moveSpeed = isBoosted ? originalMoveSpeed * 2.0f : originalMoveSpeed * 1.5f;
+        Debug.Log("Sprinting Started");
     }
 
     public void SprintingStopped()
     {
-        moveSpeed = -10;
+        moveSpeed = isBoosted ? originalMoveSpeed * 1.5f : originalMoveSpeed;
     }
 
     public void Walking()
     {
-        moveSpeed = 2; 
+        moveSpeed = isBoosted ? originalMoveSpeed * 1.5f : originalMoveSpeed;
     }
 
+
 }
+
+
+ 
