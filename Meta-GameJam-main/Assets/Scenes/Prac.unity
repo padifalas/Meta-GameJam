@@ -6948,12 +6948,12 @@ GameObject:
   - component: {fileID: 1156932628}
   - component: {fileID: 1156932627}
   m_Layer: 0
-  m_Name: Panel
+  m_Name: Pause Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1156932626
 RectTransform:
   m_ObjectHideFlags: 0
