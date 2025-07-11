@@ -12,6 +12,7 @@ public class FPC2 : MonoBehaviour
     public float lookSpeed; // Sensitivity of the camera movement
     public float gravity = -9.81f; // Gravity value
     public float jumpHeight = 1.0f; // Height of the jump
+    private HealthSystem healthSystem;
     
 
     public Transform player; // Reference to the player's camera
@@ -67,6 +68,7 @@ public class FPC2 : MonoBehaviour
         // Get and store the CharacterController component attached to this GameObject
         characterController = GetComponent<CharacterController>();
         speedPowerUp = GetComponent<SpeedPowerUp>();
+        healthSystem = GetComponent<HealthSystem>();
     }
 
     private void OnEnable()

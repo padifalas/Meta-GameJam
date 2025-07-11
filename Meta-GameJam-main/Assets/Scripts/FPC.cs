@@ -27,6 +27,7 @@ public class FirstPersonControls : MonoBehaviour
     private bool isBoosted = false; // Whether the player is currently boosted
     public float speedBoostAmount = 5f;
 
+    private HealthSystem healthSystem;
 
     [Header("speed  UP SETTINGS")]
     [Space(5)]
@@ -61,11 +62,12 @@ public class FirstPersonControls : MonoBehaviour
 
 
     private void Awake()
-    {   
+    {
 
         // Get and store the CharacterController component attached to this GameObject
         characterController = GetComponent<CharacterController>();
         speedPowerUp = GetComponent<SpeedPowerUp>(); // Initialize the SpeedPowerUp component
+        healthSystem = GetComponent<HealthSystem>();
     }
 
     private void OnEnable()
