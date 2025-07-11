@@ -8,7 +8,7 @@ public class AutomaticCam : MonoBehaviour
 {
     public Transform target; // Assign your player here in the Inspector
 
-    private Vector3 offset = new Vector3(0f, 6.13f, -6.833768f);
+    public Vector3 offset = new Vector3(0f, 4.99f, -2.94f);
     private Quaternion fixedRotation = Quaternion.Euler(41.657f, 0f, 0f);
 
     void LateUpdate()
