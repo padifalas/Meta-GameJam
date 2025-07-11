@@ -252,28 +252,42 @@ public class FPC2 : MonoBehaviour
         }
     }
 
-    public void Interact()
+public void Interact()
     {
-        // Perform a raycast to detect the lightswitch
-        Ray ray = new Ray(player.position, player.forward);
+        
+        Transform cameraTransform = player; 
+        
+        
+        // perform a raycast to detect objects
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, pickUpRange))
         {
-            if (hit.collider.CompareTag("Switch")) // Assuming the switch has this tag
+           
+            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
             {
-                // Change the material color of the objects in the array
+                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
+                if (collectible != null)
+                {
+                    collectible.OnInteracted(this); 
+                    return;
+                }
+            }
+            
+            // original switch interaction
+            if (hit.collider.CompareTag("Switch"))
+            {
+                // change the material color of the objects in the array
                 foreach (GameObject obj in objectsToChangeColor)
                 {
                     Renderer renderer = obj.GetComponent<Renderer>();
                     if (renderer != null)
                     {
-                        renderer.material.color = switchMaterial.color; // Set the color to match the switch material color
+                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
                     }
                 }
             }
-
-
         }
     }
 

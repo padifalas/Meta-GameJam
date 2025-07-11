@@ -253,28 +253,42 @@ public class FirstPersonControls : MonoBehaviour
         }
     }
 
-    public void Interact()
+public void Interact()
     {
-        // Perform a raycast to detect the lightswitch
-        Ray ray = new Ray(player.position, player.forward);
+        // get camera transform - adjust this based on your FPC2 script structure
+        Transform cameraTransform = player; // for FirstPersonControls
+        // if this is FPC2, you might need to adjust how you get the camera reference
+        
+        // perform a raycast to detect objects
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, pickUpRange))
         {
-            if (hit.collider.CompareTag("Switch")) // Assuming the switch has this tag
+            // check for collectibles (pills and cures)
+            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
             {
-                // Change the material color of the objects in the array
+                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
+                if (collectible != null)
+                {
+                    collectible.OnInteracted(this); // pass this script (works for both FPC and FPC2)
+                    return;
+                }
+            }
+            
+            // original switch interaction
+            if (hit.collider.CompareTag("Switch"))
+            {
+                // change the material color of the objects in the array
                 foreach (GameObject obj in objectsToChangeColor)
                 {
                     Renderer renderer = obj.GetComponent<Renderer>();
                     if (renderer != null)
                     {
-                        renderer.material.color = switchMaterial.color; // Set the color to match the switch material color
+                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
                     }
                 }
             }
-
-           
         }
     }
 

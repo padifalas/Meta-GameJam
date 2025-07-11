@@ -8,6 +8,8 @@ TagManager:
   - ShieldOrb
   - Chaser
   - HealthOrb
+  - Collectible
+  - Cure
   layers:
   - Default
   - TransparentFX
