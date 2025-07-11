@@ -62,12 +62,11 @@ public class FirstPersonControls : MonoBehaviour
     [Header("VISUAL EFFECTS")]
     public ParticleSystem speedSpikes;
 
-    [Header("PAUSE MENU")]
-    public bool isPaused = false; // Whether the game is currently paused
-    public GameObject pauseMenuUI; // Reference to the pause menu UI
-    private bool lookAround = true; // Whether the player can look around
-    private Controls playerInput;
 
+    [Header("PAUSE SETTINGS")]
+    [Space(1)]
+    public bool isPaused = false;
+    public GameObject pauseScreen;
 
 
     private void Awake()
@@ -323,30 +322,26 @@ public void Interact()
     }
 
     public void PauseMenu()
+    
     {
-        isPaused = true;
-        pauseMenuUI.SetActive(true);
-        characterController.enabled = false;
-        Debug.Log("Pause!");
-        lookAround = false;
+        if (isPaused == false)
+        {
+            isPaused = true;
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+            Debug.Log("should pause");
+        }
 
+        else if (isPaused == true)
+        {
+            isPaused = false;
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+            Debug.Log("should unpaused");
+        }
     }
 
-    private void OnDisable()
-    {
-        playerInput.Player.Disable();
-        playerInput.Pause.Disable();
-    }
-
-    public void ResumeGame()
-    {
-        isPaused = false;
-        pauseMenuUI.SetActive(false);
-        characterController.enabled = true;
-        Debug.Log("Resume Game!");
-        lookAround = true;
-    }
-
+ 
     public void ApplySpeedBoost(float duration)
     {
 

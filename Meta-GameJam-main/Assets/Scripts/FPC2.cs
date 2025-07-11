@@ -64,6 +64,12 @@ public class FPC2 : MonoBehaviour
     [Header("VISUAL EFFECTS")]
     public ParticleSystem speedSpikes;
 
+    [Header("PAUSE SETTINGS")]
+    [Space(1)]
+    public bool isPaused = false;
+    public GameObject pauseScreen;
+
+
     private void Awake()
     {
         // Get and store the CharacterController component attached to this GameObject
@@ -266,8 +272,26 @@ public class FPC2 : MonoBehaviour
             isCrouching = true;
         }
     }
+    public void PauseMenu()
 
-public void Interact()
+    {
+        if (isPaused == false)
+        {
+            isPaused = true;
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+            Debug.Log("should pause");
+        }
+
+        else if (isPaused == true)
+        {
+            isPaused = false;
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+            Debug.Log("should unpaused");
+        }
+    }
+    public void Interact()
     {
         
         Transform cameraTransform = player; 
