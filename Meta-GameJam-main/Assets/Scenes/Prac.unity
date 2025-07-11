@@ -347,6 +347,7 @@ GameObject:
   - component: {fileID: 159569241}
   - component: {fileID: 159569242}
   - component: {fileID: 159569243}
+  - component: {fileID: 159569244}
   m_Layer: 0
   m_Name: Player 1
   m_TagString: Player
@@ -371,8 +372,7 @@ Transform:
   - {fileID: 1980264418}
   - {fileID: 1695430052}
   - {fileID: 814309256}
-  - {fileID: 368753627}
-  - {fileID: 617170465}
+  - {fileID: 2097489943}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &159569241
@@ -446,6 +446,24 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   healthOrbHealAmount: 25
   sideEffectDuration: 5
+--- !u!114 &159569244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159569239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 069eead9f0d6f8b4f8c2038375de09a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shieldDuration: 10
+  shieldBubble: {fileID: 2097489942}
+  knockbackForce: 5
+  sideEffectDuration: 5
+  staticIntensity: 0.5
+  staticColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &190137747
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,6 +568,61 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1085264956}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &208344858
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 208344860}
+  - component: {fileID: 208344859}
+  m_Layer: 0
+  m_Name: <<--ShieldSpawner-->>
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &208344859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208344858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b5e10ac93f368b43a806a1c7a1932e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shieldOrbPrefab: {fileID: 5158208628503960595, guid: b3c0a24bd66db7c4da6f7dc34c7a9405, type: 3}
+  spawnPoints: []
+  spawnInterval: 15
+  spawnVariation: 5
+  maxOrbs: 3
+  useAutoSpawnPoints: 1
+  spawnHeight: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!4 &208344860
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208344858}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2020339566}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &215394281
 GameObject:
@@ -1642,11 +1715,11 @@ Transform:
   m_GameObject: {fileID: 282705795}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.19, z: 0}
-  m_LocalScale: {x: 2.854766, y: 2.854766, z: 2.854766}
+  m_LocalPosition: {x: 0, y: 0.19000006, z: 0}
+  m_LocalScale: {x: 2.8547661, y: 2.854766, z: 2.8547661}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1326623785}
+  m_Father: {fileID: 1718276785}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &282705797
 SphereCollider:
@@ -2169,11 +2242,11 @@ Transform:
   m_GameObject: {fileID: 368753626}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.19, z: 0}
-  m_LocalScale: {x: 2.854766, y: 2.854766, z: 2.854766}
+  m_LocalPosition: {x: 0, y: 0.19000006, z: 0}
+  m_LocalScale: {x: 2.8547661, y: 2.854766, z: 2.8547661}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 159569240}
+  m_Father: {fileID: 2097489943}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &368753628
 SphereCollider:
@@ -2954,11 +3027,11 @@ Transform:
   m_GameObject: {fileID: 617170464}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.19, z: 0}
-  m_LocalScale: {x: 2.854766, y: 2.854766, z: 2.854766}
+  m_LocalPosition: {x: 0, y: 0.19000006, z: 0}
+  m_LocalScale: {x: 2.8547661, y: 2.854766, z: 2.8547661}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 159569240}
+  m_Father: {fileID: 2097489943}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &617170466
 SphereCollider:
@@ -6825,6 +6898,75 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1252765673}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1256801632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1256801634}
+  - component: {fileID: 1256801633}
+  m_Layer: 0
+  m_Name: <<--HospitalSpawner-->>
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1256801633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256801632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa3d6d597f168cb4c86ab1faabdeef1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pillPrefab: {fileID: 0}
+  curePrefab: {fileID: 0}
+  spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  pillsToSpawn: 9
+  curesToSpawn: 4
+--- !u!4 &1256801634
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256801632}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.9100733, y: 0.5262815, z: -2.8878398}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1268070774
 GameObject:
   m_ObjectHideFlags: 0
@@ -7048,6 +7190,7 @@ GameObject:
   - component: {fileID: 1326623784}
   - component: {fileID: 1326623783}
   - component: {fileID: 1326623786}
+  - component: {fileID: 1326623787}
   m_Layer: 0
   m_Name: Player 2
   m_TagString: Player
@@ -7126,8 +7269,7 @@ Transform:
   - {fileID: 810811470}
   - {fileID: 1126876518}
   - {fileID: 225599641}
-  - {fileID: 1898044841}
-  - {fileID: 282705796}
+  - {fileID: 1718276785}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &1326623786
@@ -7147,6 +7289,24 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   healthOrbHealAmount: 25
   sideEffectDuration: 5
+--- !u!114 &1326623787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1326623782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 069eead9f0d6f8b4f8c2038375de09a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shieldDuration: 10
+  shieldBubble: {fileID: 1718276784}
+  knockbackForce: 5
+  sideEffectDuration: 5
+  staticIntensity: 0.5
+  staticColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1335651730
 GameObject:
   m_ObjectHideFlags: 0
@@ -8277,6 +8437,71 @@ Transform:
   - {fileID: 1853364883}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1604493273
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1604493275}
+  - component: {fileID: 1604493274}
+  m_Layer: 0
+  m_Name: <<--HospitalRoundManager-->>
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1604493274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604493273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a83e13c1b580894dbe5c3c84e95c660, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectiblesToWin: 3
+  currentRound: 0
+  hospitalArea: {fileID: 0}
+  forestArea: {fileID: 0}
+  parkingLotArea: {fileID: 0}
+  playerSpawnPoints: []
+  hospitalSpawner: {fileID: 0}
+  forestSpawner: {fileID: 0}
+  parkingLotSpawner: {fileID: 0}
+  player1: {fileID: 0}
+  player2: {fileID: 0}
+  winningLights: []
+  winPortal: {fileID: 0}
+  blackoutDuration: 2
+  transitionDelay: 3
+  player1ScoreText: {fileID: 0}
+  player2ScoreText: {fileID: 0}
+  player1BlackoutScreen: {fileID: 0}
+  player2BlackoutScreen: {fileID: 0}
+  winnerText: {fileID: 0}
+  roundText: {fileID: 0}
+--- !u!4 &1604493275
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604493273}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.9100733, y: 0.5262815, z: -2.8878398}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1611377070
 GameObject:
   m_ObjectHideFlags: 0
@@ -8814,6 +9039,39 @@ Transform:
   - {fileID: 1111981592098473867}
   m_Father: {fileID: 159569240}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!1 &1718276784
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1718276785}
+  m_Layer: 0
+  m_Name: Player02-Bubble
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1718276785
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718276784}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1898044841}
+  - {fileID: 282705796}
+  m_Father: {fileID: 1326623785}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1734577923
 GameObject:
   m_ObjectHideFlags: 0
@@ -10129,11 +10387,11 @@ Transform:
   m_GameObject: {fileID: 1898044840}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.19, z: 0}
-  m_LocalScale: {x: 2.854766, y: 2.854766, z: 2.854766}
+  m_LocalPosition: {x: 0, y: 0.19000006, z: 0}
+  m_LocalScale: {x: 2.8547661, y: 2.854766, z: 2.8547661}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1326623785}
+  m_Father: {fileID: 1718276785}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &1898044842
 SphereCollider:
@@ -11315,6 +11573,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2007348310}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &2020339565
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2020339566}
+  m_Layer: 0
+  m_Name: ShieldSpawn01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2020339566
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2020339565}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 208344860}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2070302141
 GameObject:
   m_ObjectHideFlags: 0
@@ -11631,6 +11920,39 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1085264956}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2097489942
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2097489943}
+  m_Layer: 0
+  m_Name: Player01-Bubble
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2097489943
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097489942}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 368753627}
+  - {fileID: 617170465}
+  m_Father: {fileID: 159569240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2133173833
 GameObject:
@@ -12214,3 +12536,6 @@ SceneRoots:
   - {fileID: 1962018533}
   - {fileID: 377771088}
   - {fileID: 1734577925}
+  - {fileID: 208344860}
+  - {fileID: 1604493275}
+  - {fileID: 1256801634}
