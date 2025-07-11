@@ -6,12 +6,12 @@ public class ChaserAI : MonoBehaviour
 {
     [Header("CHASER SETTINGS")]
     [Space(5)]
-    public float startDelay = 5f; // 5 second delay before chasing starts
+    public float startDelay = 0f; 
     public float baseSpeed = 3f;
-    public float speedIncreaseRate = 0.5f; // Speed increase per second
+    public float speedIncreaseRate = 0.5f; 
     public float maxSpeed = 8f;
     public float damageAmount = 15f;
-    public float damageInterval = 1f; // yimr btwn damage 
+    public float damageInterval = 1f; 
     
     [Header("TARGETING")]
     [Space(5)]
@@ -25,7 +25,7 @@ public class ChaserAI : MonoBehaviour
     private float currentSpeed;
     private float lastDamageTime;
     
-  
+    
     [Header("VISUAL EFFECTS")]
     [Space(5)]
     public GameObject chaserModel;
@@ -36,12 +36,12 @@ public class ChaserAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         currentSpeed = baseSpeed;
-        agent.speed = 0;
+        agent.speed = 0; 
         
-        
+      
         StartCoroutine(StartChasing());
         
-       
+      
         if (players == null || players.Length == 0)
         {
             GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
@@ -55,7 +55,7 @@ public class ChaserAI : MonoBehaviour
     
     private IEnumerator StartChasing()
     {
-        Debug.Log("enemy thing will start hunting in " + startDelay + " seconds...");
+       
         
        
         if (chaserEffect != null)
@@ -73,9 +73,9 @@ public class ChaserAI : MonoBehaviour
             chaserAudio.Play();
         }
         
-        Debug.Log("enemyy chasing u");
+      
         
-        //  speed increase 
+        
         StartCoroutine(IncreaseSpeedOverTime());
     }
     
@@ -89,7 +89,7 @@ public class ChaserAI : MonoBehaviour
             currentSpeed = Mathf.Clamp(currentSpeed, baseSpeed, maxSpeed);
             agent.speed = currentSpeed;
             
-            Debug.Log("enemy speed went  to: " + currentSpeed);
+            Debug.Log("chaser speed increaws to: " + currentSpeed);
         }
     }
     
@@ -100,12 +100,12 @@ public class ChaserAI : MonoBehaviour
        
         FindClosestPlayer();
         
-       
+      
         if (currentTarget != null)
         {
             agent.SetDestination(currentTarget.position);
             
-          
+           
             float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
             if (distanceToTarget <= attackRange)
             {
@@ -140,6 +140,23 @@ public class ChaserAI : MonoBehaviour
         {
             lastDamageTime = Time.time;
             
+           
+            ShieldSystem playerShield = currentTarget.GetComponent<ShieldSystem>();
+            if (playerShield != null && playerShield.IsShieldActive())
+            {
+             
+                playerShield.OnChaserHit(transform.position);
+                Debug.Log("Chaser hit was blocked by shield! Player knocked forward.");
+                
+              
+                if (chaserEffect != null)
+                {
+                    chaserEffect.Emit(15);
+                }
+                return;
+            }
+            
+           
             HealthSystem playerHealth = currentTarget.GetComponent<HealthSystem>();
             if (playerHealth != null)
             {
@@ -155,7 +172,7 @@ public class ChaserAI : MonoBehaviour
         }
     }
     
-    //  to temporarily stun or slow the chaser (for power-ups maybe)
+    
     public void ApplySlowEffect(float duration, float slowMultiplier = 0.5f)
     {
         StartCoroutine(SlowEffect(duration, slowMultiplier));
@@ -173,7 +190,7 @@ public class ChaserAI : MonoBehaviour
     
     private void OnDrawGizmosSelected()
     {
-        
+       
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
         
