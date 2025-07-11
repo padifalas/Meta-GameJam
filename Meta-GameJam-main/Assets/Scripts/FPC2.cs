@@ -12,6 +12,7 @@ public class FPC2 : MonoBehaviour
     public float lookSpeed; // Sensitivity of the camera movement
     public float gravity = -9.81f; // Gravity value
     public float jumpHeight = 1.0f; // Height of the jump
+    private HealthSystem healthSystem;
     
 
     public Transform player; // Reference to the player's camera
@@ -68,6 +69,7 @@ public class FPC2 : MonoBehaviour
         // Get and store the CharacterController component attached to this GameObject
         characterController = GetComponent<CharacterController>();
         speedPowerUp = GetComponent<SpeedPowerUp>();
+        healthSystem = GetComponent<HealthSystem>();
     }
 
     private void OnEnable()
@@ -265,28 +267,42 @@ public class FPC2 : MonoBehaviour
         }
     }
 
-    public void Interact()
+public void Interact()
     {
-        // Perform a raycast to detect the lightswitch
-        Ray ray = new Ray(player.position, player.forward);
+        
+        Transform cameraTransform = player; 
+        
+        
+        // perform a raycast to detect objects
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, pickUpRange))
         {
-            if (hit.collider.CompareTag("Switch")) // Assuming the switch has this tag
+           
+            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
             {
-                // Change the material color of the objects in the array
+                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
+                if (collectible != null)
+                {
+                    collectible.OnInteracted(this); 
+                    return;
+                }
+            }
+            
+            // original switch interaction
+            if (hit.collider.CompareTag("Switch"))
+            {
+                // change the material color of the objects in the array
                 foreach (GameObject obj in objectsToChangeColor)
                 {
                     Renderer renderer = obj.GetComponent<Renderer>();
                     if (renderer != null)
                     {
-                        renderer.material.color = switchMaterial.color; // Set the color to match the switch material color
+                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
                     }
                 }
             }
-
-
         }
     }
 
@@ -301,7 +317,7 @@ public class FPC2 : MonoBehaviour
 
     public void Sprinting()
     {
-        moveSpeed = isBoosted ? originalMoveSpeed * 2.0f : originalMoveSpeed * 1.5f;
+        moveSpeed = isBoosted ? originalMoveSpeed * 2.5f : originalMoveSpeed * 2.0f;
         Debug.Log("Sprinting Started");
     }
 
