@@ -1,6 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
 public class ShieldOrbSpawner : MonoBehaviour
 {
     [Header("SPAWNING SETTINGS")]
@@ -105,7 +105,7 @@ public class ShieldOrbSpawner : MonoBehaviour
         
         orbController.spawner = this;
         
-        Debug.Log("Shield orb spawned at: " + spawnPoint.position);
+        Debug.Log("shield orb spawned at: " + spawnPoint.position);
     }
     
     public void OnOrbDestroyed()

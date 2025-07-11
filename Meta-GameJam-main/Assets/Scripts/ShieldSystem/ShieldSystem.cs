@@ -7,7 +7,7 @@ public class ShieldSystem : MonoBehaviour
     [Space(5)]
     public float shieldDuration = 10f;
     public GameObject shieldBubble; 
-    public float knockbackForce = 5f;
+    public float knockbackForce = 5f; 
     public float sideEffectDuration = 5f;
     
     [Header("SIDE EFFECTS")]
@@ -20,10 +20,11 @@ public class ShieldSystem : MonoBehaviour
     private Coroutine shieldCoroutine;
     private Coroutine sideEffectCoroutine;
     
-   
+  
     private CharacterController characterController;
     private Camera playerCamera;
     private HealthSystem healthSystem;
+    private FirstPersonControls playerControls; 
     
    
     private Material originalSkybox;
@@ -31,20 +32,21 @@ public class ShieldSystem : MonoBehaviour
     
     private void Start()
     {
-       
+        
         characterController = GetComponent<CharacterController>();
         healthSystem = GetComponent<HealthSystem>();
+        playerControls = GetComponent<FirstPersonControls>();
         playerCamera = Camera.main;
         if (playerCamera == null)
             playerCamera = FindObjectOfType<Camera>();
         
-        
+       
         if (shieldBubble != null)
         {
             shieldBubble.SetActive(false);
         }
         
-      
+     
         if (playerCamera != null)
         {
             originalCameraBackground = playerCamera.backgroundColor;
@@ -55,21 +57,21 @@ public class ShieldSystem : MonoBehaviour
     {
         if (isShieldActive)
         {
-            
+          
             ApplyStrangeSideEffect();
             return;
         }
         
-  
+
         isShieldActive = true;
         
-       
+     
         if (shieldBubble != null)
         {
             shieldBubble.SetActive(true);
         }
         
-       
+      
         ApplyMinorSideEffect();
         
        
@@ -92,13 +94,13 @@ public class ShieldSystem : MonoBehaviour
     {
         isShieldActive = false;
         
-     
+        
         if (shieldBubble != null)
         {
             shieldBubble.SetActive(false);
         }
         
-        Debug.Log("shield offf");
+        Debug.Log("shield off");
     }
     
     public bool IsShieldActive()
@@ -110,11 +112,11 @@ public class ShieldSystem : MonoBehaviour
     {
         if (!isShieldActive) return;
         
-     
-        Vector3 knockbackDirection = (transform.position - chaserPosition).normalized;
-        knockbackDirection.y = 0;
-        
        
+        Vector3 knockbackDirection = (transform.position - chaserPosition).normalized;
+        knockbackDirection.y = 0; 
+        
+        
         if (characterController != null)
         {
             StartCoroutine(ApplyKnockback(knockbackDirection));
@@ -123,7 +125,7 @@ public class ShieldSystem : MonoBehaviour
         
         DeactivateShield();
         
-        
+     
     }
     
     private IEnumerator ApplyKnockback(Vector3 direction)
@@ -147,7 +149,7 @@ public class ShieldSystem : MonoBehaviour
     {
         if (isSideEffectActive) return;
         
-        Debug.Log("Strange side effect: Arcane Feedback!");
+       
         if (sideEffectCoroutine != null)
         {
             StopCoroutine(sideEffectCoroutine);
@@ -159,7 +161,7 @@ public class ShieldSystem : MonoBehaviour
     {
         if (isSideEffectActive) return;
         
- 
+        
         if (sideEffectCoroutine != null)
         {
             StopCoroutine(sideEffectCoroutine);
@@ -171,9 +173,9 @@ public class ShieldSystem : MonoBehaviour
     {
         isSideEffectActive = true;
         
-       
+        
         float originalIntensity = staticIntensity;
-        staticIntensity *= 2f; 
+        staticIntensity *= 2f;
         
         float elapsed = 0;
         while (elapsed < sideEffectDuration)
@@ -182,12 +184,12 @@ public class ShieldSystem : MonoBehaviour
             
             if (playerCamera != null)
             {
-               
+                
                 float noise = Mathf.PerlinNoise(Time.time * 10f, 0) * staticIntensity;
                 Color interferenceColor = Color.Lerp(originalCameraBackground, staticColor, noise);
                 playerCamera.backgroundColor = interferenceColor;
                 
-               
+              
                 if (Random.value < 0.3f)
                 {
                     playerCamera.enabled = false;
@@ -220,7 +222,7 @@ public class ShieldSystem : MonoBehaviour
             
             if (playerCamera != null)
             {
-               
+                
                 float noise = Mathf.PerlinNoise(Time.time * 5f, 0) * staticIntensity;
                 Color staticEffect = Color.Lerp(originalCameraBackground, staticColor, noise * 0.3f);
                 playerCamera.backgroundColor = staticEffect;
@@ -229,7 +231,7 @@ public class ShieldSystem : MonoBehaviour
             yield return null;
         }
         
-       
+      
         if (playerCamera != null)
         {
             playerCamera.backgroundColor = originalCameraBackground;
@@ -240,18 +242,10 @@ public class ShieldSystem : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-       
-        if (other.CompareTag("ShieldOrb"))
-        {
-            ActivateShield();
-            Destroy(other.gameObject);
-        }
-        
-       
+      
         if (other.CompareTag("Trap") && isShieldActive)
         {
-            Debug.Log("Shield protected from trap!");
-          
+           
             return;
         }
     }

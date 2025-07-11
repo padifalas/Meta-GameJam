@@ -1,5 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-
 public class ShieldOrb : MonoBehaviour
 {
     [Header("ORB SETTINGS")]
@@ -31,12 +32,12 @@ public class ShieldOrb : MonoBehaviour
         orbRenderer = GetComponent<Renderer>();
         
        
-        // if (audioSource == null)
-        // {
-        //     audioSource = gameObject.AddComponent<AudioSource>();
-        // }
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
         
-        
+      
         if (orbLight != null)
         {
             orbLight.color = Color.cyan;
@@ -50,7 +51,7 @@ public class ShieldOrb : MonoBehaviour
             orbRenderer.material = shieldMaterial;
         }
         
-       
+     
         if (shieldEffect != null)
         {
             shieldEffect.Play();
@@ -63,21 +64,21 @@ public class ShieldOrb : MonoBehaviour
             col.isTrigger = true;
         }
         
-        
+       
         gameObject.tag = "ShieldOrb";
     }
     
     private void Update()
     {
-      
+       
         transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime);
         transform.Rotate(Vector3.right * (rotationSpeed * 0.5f) * Time.deltaTime);
         
-        
+       
         float newY = startPosition.y + Mathf.Sin(Time.time * bobSpeed) * bobHeight;
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
         
-     
+      
         if (orbLight != null)
         {
             orbLight.intensity = 1.2f + Mathf.Sin(Time.time * 4f) * 0.4f;
@@ -99,7 +100,7 @@ public class ShieldOrb : MonoBehaviour
             DestroyOrb();
         }
         
-        
+       
         if (timer > lifetime - 3f)
         {
             float fadeAlpha = 1f - ((timer - (lifetime - 3f)) / 3f);
@@ -111,13 +112,19 @@ public class ShieldOrb : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("shield  collision detected with: " + other.name + " (Tag: " + other.tag + ")");
         
+       
         if (other.CompareTag("Player"))
         {
+           
+            
             ShieldSystem playerShield = other.GetComponent<ShieldSystem>();
             if (playerShield != null)
             {
-              
+                Debug.Log("activating shield...");
+                
+                
                 if (collectSound != null && audioSource != null)
                 {
                     audioSource.PlayOneShot(collectSound);
@@ -126,22 +133,30 @@ public class ShieldOrb : MonoBehaviour
                
                 playerShield.ActivateShield();
                 
-                Debug.Log("Shield orb collected by player!");
+                Debug.Log("shield collected by player!");
                 
-               
+            
                 if (shieldEffect != null)
                 {
                     shieldEffect.Stop();
                     shieldEffect.transform.parent = null;
                     
-                
+                    
                     shieldEffect.Emit(20);
                     Destroy(shieldEffect.gameObject, 2f);
                 }
                 
-                
+              
                 DestroyOrb();
             }
+            else
+            {
+                Debug.LogWarning("where is shieldsyste on player");
+            }
+        }
+        else
+        {
+           
         }
     }
     

@@ -18,7 +18,7 @@ public class HealthSystem : MonoBehaviour
     private FirstPersonControls playerControls;
     private bool isAffectedBySideEffect = false;
     
-    // Side effect variables
+   
     private Vector3 originalCameraPosition;
     private float originalMoveSpeed;
     private float shakeIntensity = 0.1f;
@@ -87,7 +87,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-        Debug.Log("Strange side effect: Regenerative Chaos!");
+       
         StartCoroutine(RegenerativeChaos());
     }
     
@@ -95,7 +95,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-        Debug.Log("Minor side effect: Healing Disorientation!");
+        
         StartCoroutine(HealingDisorientation());
     }
     
