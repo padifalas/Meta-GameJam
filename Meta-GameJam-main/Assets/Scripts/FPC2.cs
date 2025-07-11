@@ -12,6 +12,7 @@ public class FPC2 : MonoBehaviour
     public float lookSpeed; // Sensitivity of the camera movement
     public float gravity = -9.81f; // Gravity value
     public float jumpHeight = 1.0f; // Height of the jump
+    
 
     public Transform player; // Reference to the player's camera
                              // Private variables to store input values and the character controller
@@ -68,8 +69,8 @@ public class FPC2 : MonoBehaviour
         playerInput.Player2.Move.canceled += ctx => moveInput = Vector2.zero; // Reset moveInput when movement input is canceled
 
         // Subscribe to the look input events
-        //playerInput.Player.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>(); // Update lookInput when look input is performed
-        //playerInput.Player.Look.canceled += ctx => lookInput = Vector2.zero; // Reset lookInput when look input is canceled
+        //playerInput.Player2.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>(); // Update lookInput when look input is performed
+        //playerInput.Player2.Look.canceled += ctx => lookInput = Vector2.zero; // Reset lookInput when look input is canceled
 
         // Subscribe to the jump input event
         playerInput.Player2.Jump.performed += ctx => Jump(); // Call the Jump method when jump input is performed
@@ -104,18 +105,16 @@ public class FPC2 : MonoBehaviour
 
     public void Move()
     {
-        // World-space movement
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
 
-        if (move.magnitude >= 0.1f)
+       if (move.magnitude >= 0.1f)
         {
-            // Face movement direction
+            // Face movement direction smoothly
             Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-        float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
-        characterController.Move(move * currentSpeed * Time.deltaTime);
+        characterController.Move(move * moveSpeed * Time.deltaTime);
     }
 
 

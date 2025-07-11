@@ -103,22 +103,19 @@ public class FirstPersonControls : MonoBehaviour
 
     
         public void Move()
+    {
+        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+
+        if (move.magnitude >= 0.1f)
         {
-            // World-space movement
-            Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
-
-            if (move.magnitude >= 0.1f)
-            {
-                // Face movement direction
-                Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
-            }
-
-            float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
-            characterController.Move(move * currentSpeed * Time.deltaTime);
+            // Face movement direction smoothly
+            Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-   
+        characterController.Move(move * moveSpeed * Time.deltaTime);
+    }
+
 
     public void LookAround()
     {

@@ -259,6 +259,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Look",
+                    "type": "Button",
+                    "id": "82ce1e21-5e59-44e3-a3aa-dd6deae39130",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -380,6 +389,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "54a80f75-f711-4552-907a-3bff5d22bd67",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -281,6 +281,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Look"",
+                    ""type"": ""Button"",
+                    ""id"": ""82ce1e21-5e59-44e3-a3aa-dd6deae39130"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -404,6 +413,17 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""54a80f75-f711-4552-907a-3bff5d22bd67"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -428,6 +448,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Player2_Shoot = m_Player2.FindAction("Shoot", throwIfNotFound: true);
         m_Player2_PickUp = m_Player2.FindAction("PickUp", throwIfNotFound: true);
         m_Player2_Interact = m_Player2.FindAction("Interact", throwIfNotFound: true);
+        m_Player2_Look = m_Player2.FindAction("Look", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -590,6 +611,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player2_Shoot;
     private readonly InputAction m_Player2_PickUp;
     private readonly InputAction m_Player2_Interact;
+    private readonly InputAction m_Player2_Look;
     public struct Player2Actions
     {
         private @Controls m_Wrapper;
@@ -601,6 +623,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         public InputAction @Shoot => m_Wrapper.m_Player2_Shoot;
         public InputAction @PickUp => m_Wrapper.m_Player2_PickUp;
         public InputAction @Interact => m_Wrapper.m_Player2_Interact;
+        public InputAction @Look => m_Wrapper.m_Player2_Look;
         public InputActionMap Get() { return m_Wrapper.m_Player2; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -631,6 +654,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @Look.started += instance.OnLook;
+            @Look.performed += instance.OnLook;
+            @Look.canceled += instance.OnLook;
         }
 
         private void UnregisterCallbacks(IPlayer2Actions instance)
@@ -656,6 +682,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @Look.started -= instance.OnLook;
+            @Look.performed -= instance.OnLook;
+            @Look.canceled -= instance.OnLook;
         }
 
         public void RemoveCallbacks(IPlayer2Actions instance)
@@ -692,5 +721,6 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         void OnShoot(InputAction.CallbackContext context);
         void OnPickUp(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
+        void OnLook(InputAction.CallbackContext context);
     }
 }
