@@ -21,6 +21,17 @@ public class FirstPersonControls : MonoBehaviour
     private Vector3 velocity; // Velocity of the player
     private CharacterController characterController; // Reference to the CharacterController component
 
+    private float originalMoveSpeed =2f;
+    private float originalCrouchSpeed =2.5f;
+    private float speedBoostEndTime = 0f;
+    private bool isBoosted = false; // Whether the player is currently boosted
+    public float speedBoostAmount = 5f;
+
+
+    [Header("speed  UP SETTINGS")]
+    [Space(5)]
+    private SpeedPowerUp speedPowerUp; // Position where the picked-up object will be held
+    
     [Header("SHOOTING SETTINGS")]
     [Space(5)]
     public GameObject projectilePrefab; // Projectile prefab for shooting
@@ -50,9 +61,11 @@ public class FirstPersonControls : MonoBehaviour
 
 
     private void Awake()
-    {
+    {   
+
         // Get and store the CharacterController component attached to this GameObject
         characterController = GetComponent<CharacterController>();
+        speedPowerUp = GetComponent<SpeedPowerUp>(); // Initialize the SpeedPowerUp component
     }
 
     private void OnEnable()
@@ -93,28 +106,39 @@ public class FirstPersonControls : MonoBehaviour
         playerInput.Player.Sprint.canceled += ctx => Walking();
     }
 
+    private void Start()
+    {
+            originalMoveSpeed = moveSpeed; // Use whatever value is set in Inspector
+           originalCrouchSpeed = crouchSpeed;
+
+    }
+
     private void Update()
     {
         // Call Move and LookAround methods every frame to handle player movement and camera rotation
         Move();
         LookAround();
         ApplyGravity();
+
+        // Handle speed boost expiration
+        isBoosted = Time.time < speedBoostEndTime;
     }
 
-    
-        public void Move()
+    private void Move()
     {
-        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
+        // Calculate current speed based on state
+        float currentSpeed = isCrouching ? crouchSpeed : moveSpeed;
 
+        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y).normalized;
         if (move.magnitude >= 0.1f)
         {
-            // Face movement direction smoothly
             Quaternion toRotation = Quaternion.LookRotation(move, Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 10f);
         }
 
-        characterController.Move(move * moveSpeed * Time.deltaTime);
+        characterController.Move(move * currentSpeed * Time.deltaTime);
     }
+
 
 
     public void LookAround()
@@ -254,19 +278,29 @@ public class FirstPersonControls : MonoBehaviour
         }
     }
 
+    public void ApplySpeedBoost(float duration)
+    {
+
+        speedBoostEndTime = Time.time + duration;
+        moveSpeed = originalMoveSpeed * speedBoostAmount; // Always apply boost
+        crouchSpeed = originalCrouchSpeed * 1.5f; // Boost crouch speed too if needed
+        Debug.Log("Speed Boost Applied");
+    }
+
     public void Sprinting()
     {
-        moveSpeed = +10;
+        moveSpeed = isBoosted ? originalMoveSpeed * 2.0f : originalMoveSpeed * 1.5f;
+        Debug.Log("Sprinting Started");
     }
 
     public void SprintingStopped()
     {
-        moveSpeed = -10;
+        moveSpeed = isBoosted ? originalMoveSpeed * 1.5f : originalMoveSpeed;
     }
 
     public void Walking()
     {
-        moveSpeed = 2;
+        moveSpeed = isBoosted ? originalMoveSpeed * 1.5f : originalMoveSpeed;
     }
 
 
