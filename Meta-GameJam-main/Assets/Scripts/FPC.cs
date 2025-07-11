@@ -109,8 +109,7 @@ public class FirstPersonControls : MonoBehaviour
     private void Start()
     {
             originalMoveSpeed = moveSpeed; // Use whatever value is set in Inspector
-            originalCrouchSpeed = crouchSpeed;
-        
+           originalCrouchSpeed = crouchSpeed;
 
     }
 
