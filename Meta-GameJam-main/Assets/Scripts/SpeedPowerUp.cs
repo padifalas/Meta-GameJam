@@ -4,7 +4,8 @@ public class SpeedPowerUp : MonoBehaviour
 {
     [Header("Boost Settings")]
     public float duration = 5f;          // How long the boost lasts
-    public float respawnTime = 10f;      // Time until powerup reappears
+    public float respawnTime = 10f; 
+    // Time until powerup reappears
 
     [Header("Visuals")]
     /*public GameObject visualObject;*/    // The visible powerup model
