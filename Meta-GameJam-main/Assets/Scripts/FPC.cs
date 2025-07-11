@@ -303,7 +303,7 @@ public void Interact()
 
     public void Sprinting()
     {
-        moveSpeed = isBoosted ? originalMoveSpeed * 2.0f : originalMoveSpeed * 1.5f;
+        moveSpeed = isBoosted ? originalMoveSpeed * 2.5f : originalMoveSpeed * 2.0f;
         Debug.Log("Sprinting Started");
     }
 
