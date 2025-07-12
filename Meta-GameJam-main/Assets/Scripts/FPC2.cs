@@ -61,6 +61,13 @@ public class FPC2 : MonoBehaviour
     public Material switchMaterial; // Material to apply when switch is activated
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
+    [Header("VISUAL EFFECTS")]
+    public ParticleSystem speedSpikes;
+
+    [Header("PAUSE SETTINGS")]
+    [Space(1)]
+    public bool isPaused = false;
+    public GameObject pauseScreen;
 
 
     private void Awake()
@@ -123,6 +130,18 @@ public class FPC2 : MonoBehaviour
         ApplyGravity();
 
         isBoosted = Time.time < speedBoostEndTime; // Check if the speed boost is still active
+
+        if (speedSpikes != null)
+        {
+            if (isBoosted && !speedSpikes.isPlaying)
+            {
+                speedSpikes.Play();
+            }
+            else if (!isBoosted && speedSpikes.isPlaying)
+            {
+                speedSpikes.Stop();
+            }
+        }
     }
 
 
@@ -253,14 +272,9 @@ public class FPC2 : MonoBehaviour
             isCrouching = true;
         }
     }
+    public void PauseMenu()
 
-public void Interact()
-{
-    Transform cameraTransform = player; 
-    
-    // perform a raycast to detect objects
-    Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-    RaycastHit hit;
+
 
     if (Physics.Raycast(ray, out hit, pickUpRange))
     {
