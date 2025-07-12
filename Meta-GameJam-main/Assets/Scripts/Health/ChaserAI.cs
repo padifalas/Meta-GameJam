@@ -6,18 +6,16 @@ public class ChaserAI : MonoBehaviour
 {
     [Header("CHASER SETTINGS")]
     [Space(5)]
-    public float startDelay = 5f; 
+    public float startDelay = 5f; // 5 second delay before chasing starts
     public float baseSpeed = 3f;
-    public float speedIncreaseRate = 0.5f; // speed increase per second
+    public float speedIncreaseRate = 0.5f; // Speed increase per second
     public float maxSpeed = 8f;
-    public float normalDamage = 15f; //  damage from chaser attacks
-    public float catchDamagePercent = 0.5f; //  health lost when caught 
-    public float damageInterval = 1f; 
-    public float catchupSpeedBonus = 2f; // extra speed when player is slow
+    public float damageAmount = 15f;
+    public float damageInterval = 1f; // Time between damage applications
     
     [Header("TARGETING")]
     [Space(5)]
-    public Transform assignedPlayer; //  player this chaser targets
+    public Transform[] players; // Array of player transforms
     public float detectionRange = 15f;
     public float attackRange = 2f;
     
@@ -26,57 +24,47 @@ public class ChaserAI : MonoBehaviour
     private bool isChasing = false;
     private float currentSpeed;
     private float lastDamageTime;
-    private Vector3 lastPlayerPosition;
-    private float playerStationaryTime = 0f;
-    private bool playerIsSlowOrStopped = false;
     
-   
+    // Visual effects
     [Header("VISUAL EFFECTS")]
     [Space(5)]
     public GameObject chaserModel;
     public ParticleSystem chaserEffect;
     public AudioSource chaserAudio;
     
+    [Header("ENHANCED EFFECTS")]
+    [Space(5)]
+    public ParticleSystem smokeTrail; // continuous trail behind chaser
+    public ParticleSystem catchBurst; // big explosion when catching player
+    public AudioClip catchSound; // sound when catching player
+    public Light chaserLight; // glowing eyes effect
+    
     private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         currentSpeed = baseSpeed;
-        agent.speed = 0; 
+        agent.speed = 0; // Start stationary
         
-        
+        // Start the chasing sequence after delay
         StartCoroutine(StartChasing());
         
-       
-        currentTarget = assignedPlayer;
-        
-        
-        if (assignedPlayer == null)
+        // Find players if not assigned
+        if (players == null || players.Length == 0)
         {
-           
-            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-            if (playerObject != null)
+            GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
+            players = new Transform[playerObjects.Length];
+            for (int i = 0; i < playerObjects.Length; i++)
             {
-                assignedPlayer = playerObject.transform;
-                currentTarget = assignedPlayer;
+                players[i] = playerObjects[i].transform;
             }
-        }
-        
-        if (assignedPlayer != null)
-        {
-         
-            lastPlayerPosition = assignedPlayer.position;
-        }
-        else
-        {
-           
         }
     }
     
     private IEnumerator StartChasing()
     {
+        Debug.Log("Chaser will start hunting in " + startDelay + " seconds...");
         
-        
-        
+        // Visual indicator that chaser is about to start
         if (chaserEffect != null)
         {
             chaserEffect.Play();
@@ -92,9 +80,9 @@ public class ChaserAI : MonoBehaviour
             chaserAudio.Play();
         }
         
-       
+        Debug.Log("Sanitarium Specter is now hunting!");
         
-       
+        // Start speed increase coroutine
         StartCoroutine(IncreaseSpeedOverTime());
     }
     
@@ -108,103 +96,66 @@ public class ChaserAI : MonoBehaviour
             currentSpeed = Mathf.Clamp(currentSpeed, baseSpeed, maxSpeed);
             agent.speed = currentSpeed;
             
-           
+            Debug.Log("Chaser speed increased to: " + currentSpeed);
         }
     }
     
     private void Update()
     {
-        if (!isChasing || assignedPlayer == null) return;
+        if (!isChasing) return;
         
-      
-        currentTarget = assignedPlayer;
+        // Find the closest player
+        FindClosestPlayer();
         
-        
-        CheckPlayerMovement();
-        
-     
-        AdjustChaserSpeed();
-        
-        
-        agent.SetDestination(currentTarget.position);
-        
-      
-        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
-        if (distanceToTarget <= attackRange)
+        // Chase the target
+        if (currentTarget != null)
         {
-            CatchPlayer(); 
-        }
-    }
-    
-    private void CheckPlayerMovement()
-    {
-        float distanceMoved = Vector3.Distance(assignedPlayer.position, lastPlayerPosition);
-        
-        if (distanceMoved < 0.1f) // check is barely moving or stopped
-        {
-            playerStationaryTime += Time.deltaTime;
-            if (playerStationaryTime > 0.5f) // half second of being stationary
+            agent.SetDestination(currentTarget.position);
+            
+            // Check if close enough to attack
+            float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+            if (distanceToTarget <= attackRange)
             {
-                playerIsSlowOrStopped = true;
+                AttackPlayer();
             }
         }
-        else
-        {
-            playerStationaryTime = 0f;
-            playerIsSlowOrStopped = false;
-        }
-        
-        lastPlayerPosition = assignedPlayer.position;
     }
     
-    private void AdjustChaserSpeed()
+    private void FindClosestPlayer()
     {
-        float targetSpeed = currentSpeed;
+        float closestDistance = Mathf.Infinity;
+        Transform closestPlayer = null;
         
-        if (playerIsSlowOrStopped)
+        foreach (Transform player in players)
         {
+            if (player == null) continue;
             
-            targetSpeed += catchupSpeedBonus;
-           
+            float distance = Vector3.Distance(transform.position, player.position);
+            if (distance < closestDistance && distance <= detectionRange)
+            {
+                closestDistance = distance;
+                closestPlayer = player;
+            }
         }
         
-        agent.speed = Mathf.Min(targetSpeed, maxSpeed);
+        currentTarget = closestPlayer;
     }
     
-  
-    public void OnPlayerHitTrap()
-    {
-        
-        StartCoroutine(TrapSpeedBoost());
-    }
-    
-    private System.Collections.IEnumerator TrapSpeedBoost()
-    {
-        float originalSpeed = agent.speed;
-        agent.speed += catchupSpeedBonus; 
-        
-        yield return new WaitForSeconds(3f); 
-        
-        agent.speed = originalSpeed;
-    }
-    
-    
-    
-    private void CatchPlayer()
+    private void AttackPlayer()
     {
         if (Time.time - lastDamageTime >= damageInterval)
         {
             lastDamageTime = Time.time;
             
-          
+            // Check if player has shield active
             ShieldSystem playerShield = currentTarget.GetComponent<ShieldSystem>();
             if (playerShield != null && playerShield.IsShieldActive())
             {
-               
+                // Shield blocks damage and knocks player forward
                 playerShield.OnChaserHit(transform.position);
-               
+                Debug.Log("Chaser hit was blocked by shield! Player knocked forward.");
                 
-               
+                // Visual effect for shield hit
                 if (chaserEffect != null)
                 {
                     chaserEffect.Emit(15);
@@ -212,36 +163,23 @@ public class ChaserAI : MonoBehaviour
                 return;
             }
             
-           
+            // No shield - apply damage normally
             HealthSystem playerHealth = currentTarget.GetComponent<HealthSystem>();
             if (playerHealth != null)
             {
-               
-                float damageAmount = playerHealth.currentHealth * catchDamagePercent;
                 playerHealth.TakeDamage(damageAmount);
-               
+                Debug.Log("Chaser damaged player for " + damageAmount + " damage!");
                 
-               
+                // Visual effect for attack
                 if (chaserEffect != null)
                 {
-                    chaserEffect.Emit(25);
+                    chaserEffect.Emit(10);
                 }
-                
-            
-                TriggerCatchEffect();
             }
         }
     }
     
-    private void TriggerCatchEffect()
-    {
-       
-        Debug.Log("catcher caught player");
-        
-        // we  add camera shake, screen flash, etc. here
-    }
-    
-    
+    // Method to temporarily stun or slow the chaser (for power-ups)
     public void ApplySlowEffect(float duration, float slowMultiplier = 0.5f)
     {
         StartCoroutine(SlowEffect(duration, slowMultiplier));
@@ -252,18 +190,33 @@ public class ChaserAI : MonoBehaviour
         float originalSpeed = agent.speed;
         agent.speed *= slowMultiplier;
         
+        // dim smoke trail when slowed
+        if (smokeTrail != null)
+        {
+            var emission = smokeTrail.emission;
+            float originalRate = emission.rateOverTime.constant;
+            emission.rateOverTime = originalRate * 0.5f; // reduce smoke when slowed
+        }
+        
         yield return new WaitForSeconds(duration);
         
         agent.speed = originalSpeed;
+        
+        // restore smoke trail
+        if (smokeTrail != null)
+        {
+            var emission = smokeTrail.emission;
+            emission.rateOverTime = emission.rateOverTime.constant * 2f; // back to normal
+        }
     }
     
     private void OnDrawGizmosSelected()
     {
-       
+        // Draw detection range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
         
-       
+        // Draw attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }

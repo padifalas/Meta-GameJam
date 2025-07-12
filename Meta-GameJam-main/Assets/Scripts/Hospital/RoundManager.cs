@@ -7,7 +7,7 @@ public class RoundManager : MonoBehaviour
     [Header("round settings")]
     [Space(5)]
     public int collectiblesToWin = 3; // need 3 to progress
-    public RoundType currentRound = RoundType.Hospital;
+    [HideInInspector] public RoundType currentRound = RoundType.Hospital; // public for other scripts to check
     
     [Header("round areas")]
     [Space(5)]
@@ -15,16 +15,7 @@ public class RoundManager : MonoBehaviour
     public Transform forestArea;
     public Transform parkingLotArea;
     public Transform[] playerSpawnPoints; // spawn points for each round [hospital1, hospital2, forest1, forest2, parking1, parking2]
-
-    [Header("round hats")]
-    [Space(5)]
-    public GameObject player1MushroomHat;
-    public GameObject player1GnomeHat;
-    public GameObject player1CowboyHat;
-    public GameObject player2MushroomHat;
-    public GameObject player2GnomeHat;
-    public GameObject player2CowboyHat;
-
+    
     [Header("area spawners")]
     [Space(5)]
     public CollectibleSpawner hospitalSpawner;
@@ -35,6 +26,15 @@ public class RoundManager : MonoBehaviour
     [Space(5)]
     public MonoBehaviour player1; // can be FirstPersonControls or FPC2
     public MonoBehaviour player2; // can be FirstPersonControls or FPC2
+    
+    [Header("player hat system")]
+    [Space(5)]
+    public GameObject player1GnomeHat; // hospital round hat
+    public GameObject player1MushroomHat; // forest round hat
+    public GameObject player1CowboyHat; // parking lot round hat
+    public GameObject player2GnomeHat; // hospital round hat
+    public GameObject player2MushroomHat; // forest round hat
+    public GameObject player2CowboyHat; // parking lot round hat
     
     [Header("win effects")]
     [Space(5)]
@@ -69,11 +69,6 @@ public class RoundManager : MonoBehaviour
         ParkingLot
     }
     
-    private void Awake()
-{
-    // Ensure this GameObject is active
-    gameObject.SetActive(true);
-}
     private void Start()
     {
         // hide all ui panels initially
@@ -81,20 +76,22 @@ public class RoundManager : MonoBehaviour
         if (player2WinPanel != null) player2WinPanel.SetActive(false);
         if (startImage != null) startImage.SetActive(false);
         if (finalWinnerText != null) finalWinnerText.gameObject.SetActive(false);
-
+        
         // hide win effects
         if (winPortal != null) winPortal.SetActive(false);
         foreach (GameObject light in winningLights)
         {
             if (light != null) light.SetActive(false);
         }
-
+        
         // start in hospital round
         SetupRound(RoundType.Hospital);
-        UpdateHats(RoundType.Hospital);
         UpdateScoreUI();
         UpdateRoundWinsUI();
-
+        
+        // ensure hospital hats are shown at game start
+        UpdatePlayerHats(RoundType.Hospital);
+        
         // show start image for hospital round
         StartCoroutine(ShowStartSequence());
     }
@@ -161,9 +158,22 @@ public class RoundManager : MonoBehaviour
         if (hospitalSpawner != null) hospitalSpawner.gameObject.SetActive(roundType == RoundType.Hospital);
         if (forestSpawner != null) forestSpawner.gameObject.SetActive(roundType == RoundType.Forest);
         if (parkingLotSpawner != null) parkingLotSpawner.gameObject.SetActive(roundType == RoundType.ParkingLot);
-
-        //update hats
-        UpdateHats(roundType);
+        
+        // handle chaser activation - only active in forest round
+        ChaserManager chaserManager = FindObjectOfType<ChaserManager>();
+        if (chaserManager != null)
+        {
+            if (roundType == RoundType.Forest)
+            {
+                chaserManager.gameObject.SetActive(true);
+                Debug.Log("chasers activated for forest round");
+            }
+            else
+            {
+                chaserManager.SetChasersActive(false);
+                Debug.Log($"chasers disabled for {roundType} round");
+            }
+        }
         
         // move players to appropriate spawn points
         MovePlayersToRoundStart(roundType);
@@ -173,81 +183,9 @@ public class RoundManager : MonoBehaviour
         
         // revive players if they died in previous round
         RevivePlayers();
-
-        //HideAllHats();
-    }
-    private void UpdateHats(RoundType roundType)
-    {
-        HideAllHats();
-
-        switch (roundType) 
-        { 
-            case RoundType.Hospital:
-                if (player1GnomeHat != null)
-                {
-                    player1GnomeHat.SetActive(true);
-                }
-                if (player2GnomeHat != null)
-                {
-                    player2GnomeHat.SetActive(true);
-                }
-                break;
-            case RoundType.Forest:
-                if (player1MushroomHat != null)
-                {
-                    player1MushroomHat.SetActive(true);
-                }
-                if (player2GnomeHat != null)
-                {
-                    player2MushroomHat.SetActive(true);
-                }
-                break;
-            case RoundType.ParkingLot:
-                if (player1CowboyHat != null)
-                {
-                    player1CowboyHat.SetActive(true);
-                }
-                if (player2GnomeHat != null)
-                {
-                    player2CowboyHat.SetActive(true);
-                }
-                break;
-
-        }
-    }
-
-    private void HideAllHats()
-    {
-        if (player1GnomeHat != null)
-        { 
-            player1GnomeHat.SetActive(false);
-            
-        }
-        if (player1MushroomHat != null)
-        {
-            player1MushroomHat.SetActive(false);
-
-        }
-        if (player1CowboyHat != null)
-        {
-            player1CowboyHat.SetActive(false);
-
-        }
-        if (player2GnomeHat != null)
-        {
-            player2GnomeHat.SetActive(false);
-
-        }
-        if (player2MushroomHat != null)
-        {
-            player2MushroomHat.SetActive(false);
-
-        }
-        if (player2CowboyHat != null)
-        {
-            player2CowboyHat.SetActive(false);
-
-        }
+        
+        // update player hats for current round
+        UpdatePlayerHats(roundType);
     }
     
     private void MovePlayersToRoundStart(RoundType roundType)
@@ -349,15 +287,23 @@ public class RoundManager : MonoBehaviour
         OnRoundWin(player, winnerName);
     }
     
-    // called when player dies (parking lot round)
+    // called when player dies (forest or parking lot rounds)
     public void OnPlayerDeath(MonoBehaviour deadPlayer)
     {
-        if (roundEnded || !playersCanMove || currentRound != RoundType.ParkingLot) return;
+        // allow death to end round in both forest (chaser kills) and parking lot (combat)
+        if (roundEnded || !playersCanMove) return;
         
         MonoBehaviour winner = (deadPlayer == player1) ? player2 : player1;
         string winnerName = (winner == player1) ? "player 1" : "player 2";
         
-        Debug.Log($"{winnerName} wins by elimination!");
+        if (currentRound == RoundType.Forest)
+        {
+            Debug.Log($"{winnerName} wins forest round - {deadPlayer.name} killed by chaser!");
+        }
+        else if (currentRound == RoundType.ParkingLot)
+        {
+            Debug.Log($"{winnerName} wins parking lot round - {deadPlayer.name} eliminated in combat!");
+        }
         
         OnRoundWin(winner, winnerName);
     }
@@ -417,7 +363,7 @@ public class RoundManager : MonoBehaviour
             if (light != null) light.SetActive(false);
         }
         
-        // check if game is over (best 2 out of 3)
+        // check if all 3 rounds are complete
         if (player1RoundWins + player2RoundWins >= 3)
         {
             HandleGameCompletion();
@@ -443,7 +389,6 @@ public class RoundManager : MonoBehaviour
         // setup next round
         SetupRound(nextRound);
         UpdateScoreUI();
-
         
         // show start sequence for new round
         StartCoroutine(ShowStartSequence());
@@ -467,22 +412,23 @@ public class RoundManager : MonoBehaviour
     private void HandleGameCompletion()
     {
         gameEnded = true;
+        
+        // determine winner based on who won more rounds
         string finalWinner;
         int winnerRounds;
-
-        if (player1RoundWins > player2RoundWins) 
-        { finalWinner = "player 1";
+        
+        if (player1RoundWins > player2RoundWins)
+        {
+            finalWinner = "player 1";
             winnerRounds = player1RoundWins;
         }
-        else 
+        else
         {
-            finalWinner = "player 2";
+            finalWinner = "player 2"; 
             winnerRounds = player2RoundWins;
-
         }
-
         
-        Debug.Log($"GAME OVER! {finalWinner} wins overall with {(player1RoundWins >= 2 ? player1RoundWins : player2RoundWins)} round wins!");
+        Debug.Log($"GAME OVER! {finalWinner} wins overall with {winnerRounds} round wins out of 3!");
         
         // show final winner message
         if (finalWinnerText != null)
@@ -545,5 +491,72 @@ public class RoundManager : MonoBehaviour
     public bool CanPlayersMove()
     {
         return playersCanMove && !roundEnded && !gameEnded;
+    }
+    
+    private void UpdatePlayerHats(RoundType roundType)
+    {
+        Debug.Log($"updating player hats for {roundType} round");
+        
+        // hide all hats first
+        HideAllHats();
+        
+        // show appropriate hats based on round
+        switch (roundType)
+        {
+            case RoundType.Hospital:
+                // gnome hats for hospital round
+                if (player1GnomeHat != null) 
+                {
+                    player1GnomeHat.SetActive(true);
+                    Debug.Log("player 1 wearing gnome hat");
+                }
+                if (player2GnomeHat != null) 
+                {
+                    player2GnomeHat.SetActive(true);
+                    Debug.Log("player 2 wearing gnome hat");
+                }
+                break;
+                
+            case RoundType.Forest:
+                // mushroom hats for forest round
+                if (player1MushroomHat != null) 
+                {
+                    player1MushroomHat.SetActive(true);
+                    Debug.Log("player 1 wearing mushroom hat");
+                }
+                if (player2MushroomHat != null) 
+                {
+                    player2MushroomHat.SetActive(true);
+                    Debug.Log("player 2 wearing mushroom hat");
+                }
+                break;
+                
+            case RoundType.ParkingLot:
+                // cowboy hats for parking lot round
+                if (player1CowboyHat != null) 
+                {
+                    player1CowboyHat.SetActive(true);
+                    Debug.Log("player 1 wearing cowboy hat");
+                }
+                if (player2CowboyHat != null) 
+                {
+                    player2CowboyHat.SetActive(true);
+                    Debug.Log("player 2 wearing cowboy hat");
+                }
+                break;
+        }
+    }
+    
+    private void HideAllHats()
+    {
+        // player 1 hats
+        if (player1GnomeHat != null) player1GnomeHat.SetActive(false);
+        if (player1MushroomHat != null) player1MushroomHat.SetActive(false);
+        if (player1CowboyHat != null) player1CowboyHat.SetActive(false);
+        
+        // player 2 hats
+        if (player2GnomeHat != null) player2GnomeHat.SetActive(false);
+        if (player2MushroomHat != null) player2MushroomHat.SetActive(false);
+        if (player2CowboyHat != null) player2CowboyHat.SetActive(false);
     }
 }

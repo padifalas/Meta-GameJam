@@ -134,12 +134,22 @@ public class ChaserManager : MonoBehaviour
             Debug.Log($"configured {chaserObject.name} navmesh agent to ignore obstacles");
         }
         
-        // assign target player
+        // assign target player using reflection to avoid compilation errors
         ChaserAI chaserAI = chaserObject.GetComponent<ChaserAI>();
         if (chaserAI != null)
         {
-            chaserAI.assignedPlayer = player;
-            Debug.Log($"created chaser for player: {player.name}");
+            // try to set assignedPlayer field using reflection
+            var assignedPlayerField = chaserAI.GetType().GetField("assignedPlayer");
+            if (assignedPlayerField != null)
+            {
+                assignedPlayerField.SetValue(chaserAI, player);
+                Debug.Log($"assigned {player.name} to {chaserObject.name} via reflection");
+            }
+            else
+            {
+                Debug.LogWarning($"assignedPlayer field not found in ChaserAI script!");
+                Debug.LogWarning("make sure your ChaserAI script has: public Transform assignedPlayer;");
+            }
         }
         else
         {
@@ -153,8 +163,17 @@ public class ChaserManager : MonoBehaviour
         ChaserAI chaserAI = chaserObject.GetComponent<ChaserAI>();
         if (chaserAI != null)
         {
-            chaserAI.assignedPlayer = player;
-            Debug.Log($"manually assigned chaser to player: {player.name}");
+            // try to set assignedPlayer field using reflection
+            var assignedPlayerField = chaserAI.GetType().GetField("assignedPlayer");
+            if (assignedPlayerField != null)
+            {
+                assignedPlayerField.SetValue(chaserAI, player);
+                Debug.Log($"manually assigned {player.name} to {chaserObject.name} via reflection");
+            }
+            else
+            {
+                Debug.LogWarning("assignedPlayer field not found in ChaserAI script!");
+            }
         }
     }
     
