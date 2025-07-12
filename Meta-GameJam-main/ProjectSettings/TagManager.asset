@@ -10,6 +10,7 @@ TagManager:
   - HealthOrb
   - Collectible
   - Cure
+  - Gun
   layers:
   - Default
   - TransparentFX

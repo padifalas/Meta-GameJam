@@ -39,7 +39,7 @@ public class FirstPersonControls : MonoBehaviour
     public Transform firePoint; // Point from which the projectile is fired
     public float projectileSpeed = 20f; // Speed at which the projectile is fired
     public float pickUpRange = 3f; // Range within which objects can be picked up
-    private bool holdingGun = false;
+    private bool holdingGun = true;
 
     [Header("PICKING UP SETTINGS")]
     [Space(5)]
@@ -59,7 +59,7 @@ public class FirstPersonControls : MonoBehaviour
     public Material switchMaterial; // Material to apply when switch is activated
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
-
+    public GameObject gunGameObject; 
 
     private void Awake()
     {
@@ -179,6 +179,7 @@ public class FirstPersonControls : MonoBehaviour
     {
         if (holdingGun == true)
         {
+            gunGameObject.SetActive(true);
             // Instantiate the projectile at the fire point
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
 
