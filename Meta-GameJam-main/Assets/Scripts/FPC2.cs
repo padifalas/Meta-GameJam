@@ -255,43 +255,31 @@ public class FPC2 : MonoBehaviour
     }
 
 public void Interact()
-    {
-        
-        Transform cameraTransform = player; 
-        
-        
-        // perform a raycast to detect objects
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit hit;
+{
+    Transform cameraTransform = player; 
+    
+    // perform a raycast to detect objects
+    Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+    RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, pickUpRange))
+    if (Physics.Raycast(ray, out hit, pickUpRange))
+    {
+        // Remove the collectible interaction code since we use OnTriggerEnter now
+        // Only keep switch interaction
+        if (hit.collider.CompareTag("Switch"))
         {
-           
-            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
+            // change the material color of the objects in the array
+            foreach (GameObject obj in objectsToChangeColor)
             {
-                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
-                if (collectible != null)
+                Renderer renderer = obj.GetComponent<Renderer>();
+                if (renderer != null)
                 {
-                    collectible.OnInteracted(this); 
-                    return;
-                }
-            }
-            
-            // original switch interaction
-            if (hit.collider.CompareTag("Switch"))
-            {
-                // change the material color of the objects in the array
-                foreach (GameObject obj in objectsToChangeColor)
-                {
-                    Renderer renderer = obj.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
-                    }
+                    renderer.material.color = switchMaterial.color; // set the color to match the switch material color
                 }
             }
         }
     }
+}
 
     public void ApplySpeedBoost(float duration)
     {

@@ -256,43 +256,31 @@ public class FirstPersonControls : MonoBehaviour
     }
 
 public void Interact()
-    {
-        // get camera transform - adjust this based on your FPC2 script structure
-        Transform cameraTransform = player; // for FirstPersonControls
-        // if this is FPC2, you might need to adjust how you get the camera reference
-        
-        // perform a raycast to detect objects
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit hit;
+{
+    Transform cameraTransform = player; 
+    
+    // perform a raycast to detect objects
+    Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+    RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, pickUpRange))
+    if (Physics.Raycast(ray, out hit, pickUpRange))
+    {
+        // Remove the collectible interaction code since we use OnTriggerEnter now
+        // Only keep switch interaction
+        if (hit.collider.CompareTag("Switch"))
         {
-            // check for collectibles (pills and cures)
-            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
+            // change the material color of the objects in the array
+            foreach (GameObject obj in objectsToChangeColor)
             {
-                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
-                if (collectible != null)
+                Renderer renderer = obj.GetComponent<Renderer>();
+                if (renderer != null)
                 {
-                    collectible.OnInteracted(this); // pass this script (works for both FPC and FPC2)
-                    return;
-                }
-            }
-            
-            // original switch interaction
-            if (hit.collider.CompareTag("Switch"))
-            {
-                // change the material color of the objects in the array
-                foreach (GameObject obj in objectsToChangeColor)
-                {
-                    Renderer renderer = obj.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
-                    }
+                    renderer.material.color = switchMaterial.color; // set the color to match the switch material color
                 }
             }
         }
     }
+}
 
     public void ApplySpeedBoost(float duration)
     {

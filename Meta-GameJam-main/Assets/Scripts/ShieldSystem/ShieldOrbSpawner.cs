@@ -105,7 +105,7 @@ public class ShieldOrbSpawner : MonoBehaviour
         
         orbController.spawner = this;
         
-        Debug.Log("shield orb spawned at: " + spawnPoint.position);
+        // Debug.Log("shield orb spawned at: " + spawnPoint.position);
     }
     
     public void OnOrbDestroyed()
