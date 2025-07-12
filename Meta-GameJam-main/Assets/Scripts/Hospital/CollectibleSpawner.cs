@@ -7,7 +7,7 @@ public class CollectibleSpawner : MonoBehaviour
     [Space(5)]
     public GameObject pillPrefab; // 3x3 pills 
     public GameObject curePrefab; 
-    public Transform[] spawnPoints = new Transform[20]; //  20 spawn points
+    public Transform[] spawnPoints = new Transform[13]; //  20 spawn points
     
     [Header("spawn quantities")]
     [Space(5)]
