@@ -15,7 +15,16 @@ public class RoundManager : MonoBehaviour
     public Transform forestArea;
     public Transform parkingLotArea;
     public Transform[] playerSpawnPoints; // spawn points for each round [hospital1, hospital2, forest1, forest2, parking1, parking2]
-    
+
+    [Header("round hats")]
+    [Space(5)]
+    public GameObject player1MushroomHat;
+    public GameObject player1GnomeHat;
+    public GameObject player1CowboyHat;
+    public GameObject player2MushroomHat;
+    public GameObject player2GnomeHat;
+    public GameObject player2CowboyHat;
+
     [Header("area spawners")]
     [Space(5)]
     public CollectibleSpawner hospitalSpawner;
@@ -82,6 +91,7 @@ public class RoundManager : MonoBehaviour
 
         // start in hospital round
         SetupRound(RoundType.Hospital);
+        UpdateHats(RoundType.Hospital);
         UpdateScoreUI();
         UpdateRoundWinsUI();
 
@@ -151,6 +161,9 @@ public class RoundManager : MonoBehaviour
         if (hospitalSpawner != null) hospitalSpawner.gameObject.SetActive(roundType == RoundType.Hospital);
         if (forestSpawner != null) forestSpawner.gameObject.SetActive(roundType == RoundType.Forest);
         if (parkingLotSpawner != null) parkingLotSpawner.gameObject.SetActive(roundType == RoundType.ParkingLot);
+
+        //update hats
+        UpdateHats(roundType);
         
         // move players to appropriate spawn points
         MovePlayersToRoundStart(roundType);
@@ -160,6 +173,81 @@ public class RoundManager : MonoBehaviour
         
         // revive players if they died in previous round
         RevivePlayers();
+
+        //HideAllHats();
+    }
+    private void UpdateHats(RoundType roundType)
+    {
+        HideAllHats();
+
+        switch (roundType) 
+        { 
+            case RoundType.Hospital:
+                if (player1GnomeHat != null)
+                {
+                    player1GnomeHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2GnomeHat.SetActive(true);
+                }
+                break;
+            case RoundType.Forest:
+                if (player1MushroomHat != null)
+                {
+                    player1MushroomHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2MushroomHat.SetActive(true);
+                }
+                break;
+            case RoundType.ParkingLot:
+                if (player1CowboyHat != null)
+                {
+                    player1CowboyHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2CowboyHat.SetActive(true);
+                }
+                break;
+
+        }
+    }
+
+    private void HideAllHats()
+    {
+        if (player1GnomeHat != null)
+        { 
+            player1GnomeHat.SetActive(false);
+            
+        }
+        if (player1MushroomHat != null)
+        {
+            player1MushroomHat.SetActive(false);
+
+        }
+        if (player1CowboyHat != null)
+        {
+            player1CowboyHat.SetActive(false);
+
+        }
+        if (player2GnomeHat != null)
+        {
+            player2GnomeHat.SetActive(false);
+
+        }
+        if (player2MushroomHat != null)
+        {
+            player2MushroomHat.SetActive(false);
+
+        }
+        if (player2CowboyHat != null)
+        {
+            player2CowboyHat.SetActive(false);
+
+        }
     }
     
     private void MovePlayersToRoundStart(RoundType roundType)
@@ -330,7 +418,7 @@ public class RoundManager : MonoBehaviour
         }
         
         // check if game is over (best 2 out of 3)
-        if (player1RoundWins >= 2 || player2RoundWins >= 2)
+        if (player1RoundWins + player2RoundWins >= 3)
         {
             HandleGameCompletion();
         }
@@ -355,6 +443,7 @@ public class RoundManager : MonoBehaviour
         // setup next round
         SetupRound(nextRound);
         UpdateScoreUI();
+
         
         // show start sequence for new round
         StartCoroutine(ShowStartSequence());
@@ -378,7 +467,20 @@ public class RoundManager : MonoBehaviour
     private void HandleGameCompletion()
     {
         gameEnded = true;
-        string finalWinner = (player1RoundWins >= 2) ? "player 1" : "player 2";
+        string finalWinner;
+        int winnerRounds;
+
+        if (player1RoundWins > player2RoundWins) 
+        { finalWinner = "player 1";
+            winnerRounds = player1RoundWins;
+        }
+        else 
+        {
+            finalWinner = "player 2";
+            winnerRounds = player2RoundWins;
+
+        }
+
         
         Debug.Log($"GAME OVER! {finalWinner} wins overall with {(player1RoundWins >= 2 ? player1RoundWins : player2RoundWins)} round wins!");
         

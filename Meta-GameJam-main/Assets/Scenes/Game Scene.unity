@@ -9068,7 +9068,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &508409886
 Transform:
   m_ObjectHideFlags: 0
@@ -26035,6 +26035,12 @@ MonoBehaviour:
   - {fileID: 1865611666}
   - {fileID: 228127156}
   - {fileID: 931886759}
+  player1MushroomHat: {fileID: 8162812106238440193}
+  player1GnomeHat: {fileID: 6007991196546813801}
+  player1CowboyHat: {fileID: 2738186143980947596}
+  player2MushroomHat: {fileID: 508409885}
+  player2GnomeHat: {fileID: 1195453169}
+  player2CowboyHat: {fileID: 1955052313}
   hospitalSpawner: {fileID: 1256801635}
   forestSpawner: {fileID: 0}
   parkingLotSpawner: {fileID: 0}
@@ -32511,7 +32517,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1955052314
 Transform:
   m_ObjectHideFlags: 0
@@ -36091,7 +36097,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!33 &3239851846722356908
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -36332,7 +36338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &9061624246660759299
 MeshRenderer:
   m_ObjectHideFlags: 0
