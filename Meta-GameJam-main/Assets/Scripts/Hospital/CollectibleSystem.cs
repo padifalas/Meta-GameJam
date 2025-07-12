@@ -9,7 +9,11 @@ public class CollectibleSystem : MonoBehaviour
     public CollectibleType collectibleType = CollectibleType.Pill;
     public float detectionRadius = 2f; // radius for showing UI
     public float floatSpeed = 2f;
-    public GameObject interactUI; // ui image that shows when player is in range
+    
+    [Header("split screen ui")]
+    [Space(5)]
+    public GameObject player1InteractUI; // ui for player 1 side of screen
+    public GameObject player2InteractUI; // ui for player 2 side of screen
     
     [Header("visual effects")]
     [Space(5)]
@@ -51,19 +55,21 @@ public class CollectibleSystem : MonoBehaviour
         }
         
         // make sure ui starts hidden
-        if (interactUI != null)
-            interactUI.SetActive(false);
+        if (player1InteractUI != null)
+            player1InteractUI.SetActive(false);
+        if (player2InteractUI != null)
+            player2InteractUI.SetActive(false);
         
         // setup trigger collider for collection
         Collider col = GetComponent<Collider>();
         if (col != null)
         {
             col.isTrigger = true;
-            // Debug.Log($"{collectibleType} collider setup as trigger for collection");
+            Debug.Log($"{collectibleType} collider setup as trigger for collection");
         }
         else
         {
-            // Debug.LogWarning($"no collider found on {collectibleType}! adding sphere collider");
+            Debug.LogWarning($"no collider found on {collectibleType}! adding sphere collider");
             SphereCollider sphereCol = gameObject.AddComponent<SphereCollider>();
             sphereCol.isTrigger = true;
             sphereCol.radius = 0.5f;
@@ -113,9 +119,8 @@ public class CollectibleSystem : MonoBehaviour
                     nearbyPlayer = player;
                     foundPlayer = true;
                     
-                    // show UI when player is nearby
-                    if (interactUI != null)
-                        interactUI.SetActive(true);
+                    // show appropriate UI based on which player is nearby
+                    ShowUIForPlayer(player);
                     
                     break;
                 }
@@ -128,9 +133,8 @@ public class CollectibleSystem : MonoBehaviour
             playerInRange = false;
             nearbyPlayer = null;
             
-            // hide ui when player leaves radius
-            if (interactUI != null)
-                interactUI.SetActive(false);
+            // hide both UIs when player leaves radius
+            HideAllUI();
         }
     }
     
@@ -166,9 +170,8 @@ public class CollectibleSystem : MonoBehaviour
         
         Debug.Log($"🎯 collecting {collectibleType}...");
         
-        // hide ui immediately
-        if (interactUI != null)
-            interactUI.SetActive(false);
+        // hide all UI immediately
+        HideAllUI();
         
         // float towards player
         Vector3 targetPosition = player.transform.position + Vector3.up * 1.5f;
@@ -275,5 +278,49 @@ public class CollectibleSystem : MonoBehaviour
         // draw detection radius when not selected (more subtle)
         Gizmos.color = new Color(1f, 1f, 0f, 0.1f); // transparent yellow
         Gizmos.DrawSphere(transform.position, detectionRadius);
+    }
+    
+    private void ShowUIForPlayer(MonoBehaviour player)
+    {
+        // hide both UIs first
+        HideAllUI();
+        
+        // determine which player this is and show appropriate UI
+        if (IsPlayer1(player))
+        {
+            if (player1InteractUI != null)
+            {
+                player1InteractUI.SetActive(true);
+                Debug.Log("showing player 1 interact UI");
+            }
+        }
+        else if (IsPlayer2(player))
+        {
+            if (player2InteractUI != null)
+            {
+                player2InteractUI.SetActive(true);
+                Debug.Log("showing player 2 interact UI");
+            }
+        }
+    }
+    
+    private void HideAllUI()
+    {
+        if (player1InteractUI != null)
+            player1InteractUI.SetActive(false);
+        if (player2InteractUI != null)
+            player2InteractUI.SetActive(false);
+    }
+    
+    private bool IsPlayer1(MonoBehaviour player)
+    {
+        // check if this is player 1 by script type or name
+        return player.GetType().Name == "FirstPersonControls" || player.name.Contains("Player1");
+    }
+    
+    private bool IsPlayer2(MonoBehaviour player)
+    {
+        // check if this is player 2 by script type or name
+        return player.GetType().Name == "FPC2" || player.name.Contains("Player2");
     }
 }
