@@ -189,7 +189,7 @@ public void Revive()
     
     Debug.Log($"✨ {gameObject.name} revived with full health!");
 }
-    private void Die()  
+    private void Die()
     {
         Debug.Log($"💀 {gameObject.name} died!");
 

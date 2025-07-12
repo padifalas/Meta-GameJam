@@ -25,6 +25,11 @@ public class RoundManager : MonoBehaviour
     public GameObject player2GnomeHat;
     public GameObject player2CowboyHat;
 
+    [Header("round 3 gun")]
+    [Space(5)]
+    public GameObject player1Gun;
+    public GameObject player2Gun;
+
     [Header("area spawners")]
     [Space(5)]
     public CollectibleSpawner hospitalSpawner;
@@ -94,6 +99,7 @@ public class RoundManager : MonoBehaviour
         UpdateHats(RoundType.Hospital);
         UpdateScoreUI();
         UpdateRoundWinsUI();
+        UpdateGun(RoundType.Hospital);
 
         // show start image for hospital round
         StartCoroutine(ShowStartSequence());
@@ -164,6 +170,7 @@ public class RoundManager : MonoBehaviour
 
         //update hats
         UpdateHats(roundType);
+        UpdateGun(roundType);
         
         // move players to appropriate spawn points
         MovePlayersToRoundStart(roundType);
@@ -215,6 +222,7 @@ public class RoundManager : MonoBehaviour
 
         }
     }
+    
 
     private void HideAllHats()
     {
@@ -249,7 +257,57 @@ public class RoundManager : MonoBehaviour
 
         }
     }
-    
+    private void UpdateGun(RoundType roundType)
+    {
+        HideGun();
+
+        switch (roundType)
+        {
+            case RoundType.Hospital:
+                if (player1Gun != null)
+                {
+                    player1Gun.SetActive(false);
+                }
+                if (player2Gun != null)
+                {
+                    player2Gun.SetActive(false);
+                }
+                break;
+            case RoundType.Forest:
+                if (player1Gun != null)
+                {
+                    player1Gun.SetActive(false);
+                }
+                if (player2Gun != null)
+                {
+                    player2Gun.SetActive(false);
+                }
+                break;
+            case RoundType.ParkingLot:
+                if (player1Gun != null)
+                {
+                    player1Gun.SetActive(true);
+                }
+                if (player2Gun != null)
+                {
+                    player2Gun.SetActive(true);
+                }
+                break;
+
+        }
+    }
+
+    private void HideGun()
+    {
+        if (player1Gun != null)
+        {
+            player1Gun.SetActive(false);
+        }
+        if (player2Gun != null)
+        {
+            player2Gun.SetActive(false);
+        }
+    }
     private void MovePlayersToRoundStart(RoundType roundType)
     {
         if (playerSpawnPoints == null || playerSpawnPoints.Length < 6) return;
