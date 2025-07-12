@@ -7,7 +7,8 @@ public class HealthSystem : MonoBehaviour
     [Header("HEALTH SETTINGS")]
     [Space(5)]
     public float maxHealth = 100f;
-    public float currentHealth;
+    [HideInInspector]
+    public float currentHealth; 
     public Slider healthBar; 
     public float healthOrbHealAmount = 25f;
     
@@ -18,7 +19,7 @@ public class HealthSystem : MonoBehaviour
     private FirstPersonControls playerControls;
     private bool isAffectedBySideEffect = false;
     
-   
+    
     private Vector3 originalCameraPosition;
     private float originalMoveSpeed;
     private float shakeIntensity = 0.1f;
@@ -62,15 +63,15 @@ public class HealthSystem : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthBar();
         
-        //  side effects based on health 
+        
         if (wasFullHealth && healAmount > 0)
         {
-            //  side effect when healing at full 
+            
             ApplyStrangeSideEffect();
         }
         else if (healAmount > 0)
         {
-            // smaalll side effect when healing normally
+            
             ApplyMinorSideEffect();
         }
     }
@@ -87,7 +88,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-       
+        Debug.Log("player big");
         StartCoroutine(RegenerativeChaos());
     }
     
@@ -95,7 +96,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-        
+        Debug.Log("cam shake");
         StartCoroutine(HealingDisorientation());
     }
     
@@ -103,11 +104,11 @@ public class HealthSystem : MonoBehaviour
     {
         isAffectedBySideEffect = true;
         
-        //  player character growww larger 
+        
         Vector3 originalScale = transform.localScale;
         Vector3 targetScale = originalScale * 1.3f;
         
-        // granual scaling
+        
         float elapsed = 0;
         while (elapsed < 1f)
         {
@@ -116,10 +117,10 @@ public class HealthSystem : MonoBehaviour
             yield return null;
         }
         
-        // stay big  for hpw long
+        
         yield return new WaitForSeconds(sideEffectDuration - 2f);
         
-        // scale back 2 nrmal
+        
         elapsed = 0;
         while (elapsed < 1f)
         {
@@ -136,10 +137,10 @@ public class HealthSystem : MonoBehaviour
     {
         isAffectedBySideEffect = true;
         
-        //  camera shake and slight movement speed reduction
+        
         if (playerControls != null)
         {
-            playerControls.moveSpeed *= 0.8f; //  speed slightly
+            playerControls.moveSpeed *= 0.8f; 
         }
         
         float elapsed = 0;
@@ -147,7 +148,7 @@ public class HealthSystem : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             
-            // cam shake effect
+           
             if (playerCamera != null)
             {
                 Vector3 shake = Random.insideUnitSphere * shakeIntensity;
@@ -157,7 +158,7 @@ public class HealthSystem : MonoBehaviour
             yield return null;
         }
         
-        // reseresettt effects
+        
         if (playerCamera != null)
         {
             playerCamera.transform.localPosition = originalCameraPosition;
@@ -173,8 +174,8 @@ public class HealthSystem : MonoBehaviour
     
     private void Die()
     {
-        Debug.Log("u died botch");
-        
+        Debug.Log("plauer die");
+       
     }
     
     private void OnTriggerEnter(Collider other)
