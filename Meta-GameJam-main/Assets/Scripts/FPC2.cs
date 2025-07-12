@@ -107,7 +107,7 @@ public class FPC2 : MonoBehaviour
         playerInput.Player2.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
 
         // Subscribe to the interact input event
-        playerInput.Player2.Interact.performed += ctx => Interact(); // Interact with switch
+        //playerInput.Player2.Interact.performed += ctx => Interact(); // Interact with switch
 
         playerInput.Player2.Sprint.performed += ctx => Sprinting();
 
@@ -274,28 +274,45 @@ public class FPC2 : MonoBehaviour
     }
     public void PauseMenu()
 
-
-
-    if (Physics.Raycast(ray, out hit, pickUpRange))
     {
-        // Remove the collectible interaction code since we use OnTriggerEnter now
-        // Only keep switch interaction
-        if (hit.collider.CompareTag("Switch"))
+        if (isPaused == false)
         {
-            // change the material color of the objects in the array
-            foreach (GameObject obj in objectsToChangeColor)
-            {
-                Renderer renderer = obj.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    renderer.material.color = switchMaterial.color; // set the color to match the switch material color
-                }
-            }
+            isPaused = true;
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+            Debug.Log("should pause");
+        }
+
+        else if (isPaused == true)
+        {
+            isPaused = false;
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+            Debug.Log("should unpaused");
         }
     }
-}
 
-    public void ApplySpeedBoost(float duration)
+
+    //if (Physics.Raycast(ray, out hit, pickUpRange))
+    //{
+    //    // Remove the collectible interaction code since we use OnTriggerEnter now
+    //    // Only keep switch interaction
+    //    if (hit.collider.CompareTag("Switch"))
+    //    {
+    //        // change the material color of the objects in the array
+    //        foreach (GameObject obj in objectsToChangeColor)
+    //        {
+    //            Renderer renderer = obj.GetComponent<Renderer>();
+    //            if (renderer != null)
+    //            {
+    //                renderer.material.color = switchMaterial.color; // set the color to match the switch material color
+    //            }
+    //        }
+    //    }
+    //}
+
+
+public void ApplySpeedBoost(float duration)
     {
 
         speedBoostEndTime = Time.time + duration;
@@ -322,6 +339,8 @@ public class FPC2 : MonoBehaviour
 
 
 }
+
+
 
 
  

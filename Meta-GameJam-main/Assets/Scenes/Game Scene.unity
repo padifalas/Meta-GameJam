@@ -2655,9 +2655,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectDuration: 5
-
-  playerCamera: {fileID: 1980264420}
-  playerModel: {fileID: 1695430048}
+  teleportPoints:
+  - {fileID: 536316253}
+  - {fileID: 1649404539}
+  - {fileID: 1750006701}
+  - {fileID: 16429072}
+  slowdownMultiplier: 0.4
+  shakeIntensity: 0.15
+  shakeFadesOut: 1
+  blurPulseSpeed: 3
+  blurIntensity: 0.3
+  colorShiftChance: 0.1
+  colorShiftIntensity: 0.2
+  teleportInterval: 2
+  disableCollisionDuringInvisibility: 0
+  ghostlyParticlesPrefab: {fileID: 0}
+  invisibilityTint: {r: 0, g: 1, b: 1, a: 1}
+  invisibilityTintIntensity: 0.1
+  playerCamera: {fileID: 0}
+  playerModel: {fileID: 0}
 --- !u!1 &162146041
 GameObject:
   m_ObjectHideFlags: 0
@@ -5846,7 +5862,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &338125250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8021,7 +8037,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &467517684
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18688,7 +18704,8 @@ Transform:
   - {fileID: 1750006701}
   - {fileID: 16429072}
   - {fileID: 2086714694}
-
+  - {fileID: 1163330118}
+  - {fileID: 1256801634}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &1109360862
@@ -22698,9 +22715,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectDuration: 5
-
-  playerCamera: {fileID: 1126876521}
-  playerModel: {fileID: 225599640}
+  teleportPoints:
+  - {fileID: 536316253}
+  - {fileID: 1649404539}
+  - {fileID: 1750006701}
+  - {fileID: 16429072}
+  slowdownMultiplier: 0.4
+  shakeIntensity: 0.15
+  shakeFadesOut: 1
+  blurPulseSpeed: 3
+  blurIntensity: 0.3
+  colorShiftChance: 0.1
+  colorShiftIntensity: 0.2
+  teleportInterval: 2
+  disableCollisionDuringInvisibility: 0
+  ghostlyParticlesPrefab: {fileID: 0}
+  invisibilityTint: {r: 0, g: 1, b: 1, a: 1}
+  invisibilityTintIntensity: 0.1
+  playerCamera: {fileID: 0}
+  playerModel: {fileID: 0}
 --- !u!1 &1335651730
 GameObject:
   m_ObjectHideFlags: 0
@@ -24687,7 +24720,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1484189841
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25943,9 +25976,9 @@ MonoBehaviour:
   startImageDuration: 2
   player1ScoreText: {fileID: 0}
   player2ScoreText: {fileID: 0}
-  player1WinPanel: {fileID: 1484189840}
-  player2WinPanel: {fileID: 467517683}
-  startImage: {fileID: 338125249}
+  player1WinPanel: {fileID: 0}
+  player2WinPanel: {fileID: 0}
+  startImage: {fileID: 0}
   roundWinsText: {fileID: 0}
   finalWinnerText: {fileID: 0}
 --- !u!4 &1604493275

@@ -109,7 +109,7 @@ public class FirstPersonControls : MonoBehaviour
         playerInput.Player.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
 
         // Subscribe to the interact input event
-        playerInput.Player.Interact.performed += ctx => Interact(); // Interact with switch
+        //playerInput.Player.Interact.performed += ctx => Interact(); // Interact with switch
 
         playerInput.Player.Sprint.performed += ctx => Sprinting();
 
@@ -206,6 +206,8 @@ public class FirstPersonControls : MonoBehaviour
     {
         if (holdingGun == true)
         {
+            // Make Gun Object Active when start in round 3 
+
             // Instantiate the projectile at the fire point
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
 
@@ -282,32 +284,44 @@ public class FirstPersonControls : MonoBehaviour
         }
     }
 
-public void Interact()
-{
-    Transform cameraTransform = player; 
-    
-    // perform a raycast to detect objects
-    Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-    RaycastHit hit;
-
-    if (Physics.Raycast(ray, out hit, pickUpRange))
+/*public void Interact()
     {
-        // Remove the collectible interaction code since we use OnTriggerEnter now
-        // Only keep switch interaction
-        if (hit.collider.CompareTag("Switch"))
+        // get camera transform - adjust this based on your FPC2 script structure
+        Transform cameraTransform = player; // for FirstPersonControls
+        // if this is FPC2, you might need to adjust how you get the camera reference
+        
+        // perform a raycast to detect objects
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, pickUpRange))
         {
-            // change the material color of the objects in the array
-            foreach (GameObject obj in objectsToChangeColor)
+            // check for collectibles (pills and cures)
+            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
             {
-                Renderer renderer = obj.GetComponent<Renderer>();
-                if (renderer != null)
+                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
+                if (collectible != null)
                 {
-                    renderer.material.color = switchMaterial.color; // set the color to match the switch material color
+                    collectible.OnInteracted(this); // pass this script (works for both FPC and FPC2)
+                    return;
+                }
+            }
+            
+            // original switch interaction
+            if (hit.collider.CompareTag("Switch"))
+            {
+                // change the material color of the objects in the array
+                foreach (GameObject obj in objectsToChangeColor)
+                {
+                    Renderer renderer = obj.GetComponent<Renderer>();
+                    if (renderer != null)
+                    {
+                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
+                    }
                 }
             }
         }
-    }
-}
+    }*/
 
     public void PauseMenu()
     
