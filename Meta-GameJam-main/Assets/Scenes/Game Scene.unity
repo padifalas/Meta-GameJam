@@ -2571,6 +2571,7 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   projectileSpeed: 20
   pickUpRange: 3
+  holdingGun: 1
   holdPosition: {fileID: 0}
   crouchHeight: 1
   standingHeight: 2
@@ -8645,7 +8646,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &508409886
 Transform:
   m_ObjectHideFlags: 0
@@ -31859,7 +31860,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1955052314
 Transform:
   m_ObjectHideFlags: 0
@@ -32216,7 +32217,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -35438,7 +35439,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!33 &3239851846722356908
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -35679,7 +35680,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &9061624246660759299
 MeshRenderer:
   m_ObjectHideFlags: 0
