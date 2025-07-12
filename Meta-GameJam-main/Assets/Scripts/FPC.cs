@@ -60,6 +60,15 @@ public class FirstPersonControls : MonoBehaviour
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
     public GameObject gunGameObject; 
+    [Header("VISUAL EFFECTS")]
+    public ParticleSystem speedSpikes;
+
+
+    [Header("PAUSE SETTINGS")]
+    [Space(1)]
+    public bool isPaused = false;
+    public GameObject pauseScreen;
+
 
     private void Awake()
     {
@@ -77,6 +86,8 @@ public class FirstPersonControls : MonoBehaviour
 
         // Enable the input actions
         playerInput.Player.Enable();
+
+        playerInput.Pause.Enable();
 
         // Subscribe to the movement input events
         playerInput.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>(); // Update moveInput when movement input is performed
@@ -99,13 +110,18 @@ public class FirstPersonControls : MonoBehaviour
         playerInput.Player.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
 
         // Subscribe to the interact input event
-        playerInput.Player.Interact.performed += ctx => Interact(); // Interact with switch
+        //playerInput.Player.Interact.performed += ctx => Interact(); // Interact with switch
 
         playerInput.Player.Sprint.performed += ctx => Sprinting();
 
         playerInput.Player.Sprint.canceled += ctx => SprintingStopped();
 
         playerInput.Player.Sprint.canceled += ctx => Walking();
+
+        playerInput.Pause.PauseMenu.performed += ctx => PauseMenu();
+       
+
+
     }
 
     private void Start()
@@ -124,6 +140,18 @@ public class FirstPersonControls : MonoBehaviour
 
         // Handle speed boost expiration
         isBoosted = Time.time < speedBoostEndTime;
+
+        if (speedSpikes != null)
+        {
+            if (isBoosted && !speedSpikes.isPlaying)
+            {
+                speedSpikes.Play();
+            }
+            else if (!isBoosted && speedSpikes.isPlaying)
+            {
+                speedSpikes.Stop();
+            }
+        }
     }
 
     private void Move()
@@ -180,6 +208,8 @@ public class FirstPersonControls : MonoBehaviour
         if (holdingGun == true)
         {
             gunGameObject.SetActive(true);
+            // Make Gun Object Active when start in round 3 
+
             // Instantiate the projectile at the fire point
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
 
@@ -256,7 +286,7 @@ public class FirstPersonControls : MonoBehaviour
         }
     }
 
-public void Interact()
+/*public void Interact()
     {
         // get camera transform - adjust this based on your FPC2 script structure
         Transform cameraTransform = player; // for FirstPersonControls
@@ -293,8 +323,29 @@ public void Interact()
                 }
             }
         }
+    }*/
+
+    public void PauseMenu()
+    
+    {
+        if (isPaused == false)
+        {
+            isPaused = true;
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+            Debug.Log("should pause");
+        }
+
+        else if (isPaused == true)
+        {
+            isPaused = false;
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+            Debug.Log("should unpaused");
+        }
     }
 
+ 
     public void ApplySpeedBoost(float duration)
     {
 

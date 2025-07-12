@@ -15,7 +15,16 @@ public class RoundManager : MonoBehaviour
     public Transform forestArea;
     public Transform parkingLotArea;
     public Transform[] playerSpawnPoints; // spawn points for each round [hospital1, hospital2, forest1, forest2, parking1, parking2]
-    
+
+    [Header("round hats")]
+    [Space(5)]
+    public GameObject player1MushroomHat;
+    public GameObject player1GnomeHat;
+    public GameObject player1CowboyHat;
+    public GameObject player2MushroomHat;
+    public GameObject player2GnomeHat;
+    public GameObject player2CowboyHat;
+
     [Header("area spawners")]
     [Space(5)]
     public CollectibleSpawner hospitalSpawner;
@@ -31,21 +40,27 @@ public class RoundManager : MonoBehaviour
     [Space(5)]
     public GameObject[] winningLights; // lights that activate for winner
     public GameObject winPortal; // portal effect for winner
-    public float blackoutDuration = 2f; // how long loser screen stays black
-    public float transitionDelay = 3f; // delay before scene transition
+    public float winPanelDuration = 5f; // how long win panels show
+    public float startImageDuration = 2f; // how long start image shows
     
     [Header("ui references")]
     [Space(5)]
     public Text player1ScoreText;
     public Text player2ScoreText;
-    public GameObject player1BlackoutScreen; // black ui panel for player 1
-    public GameObject player2BlackoutScreen; // black ui panel for player 2
-    public Text winnerText; // text showing who won
-    public Text roundText; // text showing current round
+    public GameObject player1WinPanel; // player 1 win image/panel
+    public GameObject player2WinPanel; // player 2 win image/panel
+    public GameObject startImage; // "start" image for beginning of rounds
+    public Text roundWinsText; // shows overall wins (e.g., "P1: 1  P2: 0")
+    public Text finalWinnerText; // shows final game winner
     
-    private int player1Score = 0;
-    private int player2Score = 0;
+    // round scoring
+    private int player1Score = 0; // pills collected this round
+    private int player2Score = 0; // pills collected this round
+    private int player1RoundWins = 0; // rounds won
+    private int player2RoundWins = 0; // rounds won
     private bool roundEnded = false;
+    private bool gameEnded = false;
+    private bool playersCanMove = true; // control player movement
     
     public enum RoundType
     {
@@ -54,32 +69,87 @@ public class RoundManager : MonoBehaviour
         ParkingLot
     }
     
+    private void Awake()
+{
+    // Ensure this GameObject is active
+    gameObject.SetActive(true);
+}
     private void Start()
     {
-        // ensure blackout screens start hidden
-        if (player1BlackoutScreen != null)
-            player1BlackoutScreen.SetActive(false);
-        
-        if (player2BlackoutScreen != null)
-            player2BlackoutScreen.SetActive(false);
-        
+        // hide all ui panels initially
+        if (player1WinPanel != null) player1WinPanel.SetActive(false);
+        if (player2WinPanel != null) player2WinPanel.SetActive(false);
+        if (startImage != null) startImage.SetActive(false);
+        if (finalWinnerText != null) finalWinnerText.gameObject.SetActive(false);
+
         // hide win effects
-        if (winPortal != null)
-            winPortal.SetActive(false);
-        
+        if (winPortal != null) winPortal.SetActive(false);
         foreach (GameObject light in winningLights)
         {
-            if (light != null)
-                light.SetActive(false);
+            if (light != null) light.SetActive(false);
         }
-        
-        // hide winner text
-        if (winnerText != null)
-            winnerText.gameObject.SetActive(false);
-        
+
         // start in hospital round
         SetupRound(RoundType.Hospital);
+        UpdateHats(RoundType.Hospital);
         UpdateScoreUI();
+        UpdateRoundWinsUI();
+
+        // show start image for hospital round
+        StartCoroutine(ShowStartSequence());
+    }
+    
+    private IEnumerator ShowStartSequence()
+    {
+        // disable player movement
+        SetPlayersCanMove(false);
+        
+        // show start image
+        if (startImage != null)
+        {
+            startImage.SetActive(true);
+            Debug.Log("showing start image for " + startImageDuration + " seconds");
+        }
+        
+        yield return new WaitForSeconds(startImageDuration);
+        
+        // hide start image and enable movement
+        if (startImage != null) startImage.SetActive(false);
+        SetPlayersCanMove(true);
+        
+        Debug.Log("round started! players can now move");
+    }
+    
+    private void SetPlayersCanMove(bool canMove)
+    {
+        playersCanMove = canMove;
+        
+        // disable/enable player input based on canMove
+        if (player1 != null)
+        {
+            MonoBehaviour[] scripts = player1.GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour script in scripts)
+            {
+                if (script.GetType().Name == "FirstPersonControls" || script.GetType().Name == "FPC2")
+                {
+                    script.enabled = canMove;
+                }
+            }
+        }
+        
+        if (player2 != null)
+        {
+            MonoBehaviour[] scripts = player2.GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour script in scripts)
+            {
+                if (script.GetType().Name == "FirstPersonControls" || script.GetType().Name == "FPC2")
+                {
+                    script.enabled = canMove;
+                }
+            }
+        }
+        
+        Debug.Log("players can move: " + canMove);
     }
     
     private void SetupRound(RoundType roundType)
@@ -91,6 +161,9 @@ public class RoundManager : MonoBehaviour
         if (hospitalSpawner != null) hospitalSpawner.gameObject.SetActive(roundType == RoundType.Hospital);
         if (forestSpawner != null) forestSpawner.gameObject.SetActive(roundType == RoundType.Forest);
         if (parkingLotSpawner != null) parkingLotSpawner.gameObject.SetActive(roundType == RoundType.ParkingLot);
+
+        //update hats
+        UpdateHats(roundType);
         
         // move players to appropriate spawn points
         MovePlayersToRoundStart(roundType);
@@ -98,9 +171,83 @@ public class RoundManager : MonoBehaviour
         // clear any existing effects
         ClearPlayerEffects();
         
-        // update round ui
-        if (roundText != null)
-            roundText.text = $"round: {roundType}";
+        // revive players if they died in previous round
+        RevivePlayers();
+
+        //HideAllHats();
+    }
+    private void UpdateHats(RoundType roundType)
+    {
+        HideAllHats();
+
+        switch (roundType) 
+        { 
+            case RoundType.Hospital:
+                if (player1GnomeHat != null)
+                {
+                    player1GnomeHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2GnomeHat.SetActive(true);
+                }
+                break;
+            case RoundType.Forest:
+                if (player1MushroomHat != null)
+                {
+                    player1MushroomHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2MushroomHat.SetActive(true);
+                }
+                break;
+            case RoundType.ParkingLot:
+                if (player1CowboyHat != null)
+                {
+                    player1CowboyHat.SetActive(true);
+                }
+                if (player2GnomeHat != null)
+                {
+                    player2CowboyHat.SetActive(true);
+                }
+                break;
+
+        }
+    }
+
+    private void HideAllHats()
+    {
+        if (player1GnomeHat != null)
+        { 
+            player1GnomeHat.SetActive(false);
+            
+        }
+        if (player1MushroomHat != null)
+        {
+            player1MushroomHat.SetActive(false);
+
+        }
+        if (player1CowboyHat != null)
+        {
+            player1CowboyHat.SetActive(false);
+
+        }
+        if (player2GnomeHat != null)
+        {
+            player2GnomeHat.SetActive(false);
+
+        }
+        if (player2MushroomHat != null)
+        {
+            player2MushroomHat.SetActive(false);
+
+        }
+        if (player2CowboyHat != null)
+        {
+            player2CowboyHat.SetActive(false);
+
+        }
     }
     
     private void MovePlayersToRoundStart(RoundType roundType)
@@ -116,6 +263,7 @@ public class RoundManager : MonoBehaviour
             player1.transform.position = playerSpawnPoints[spawnIndex].position;
             player1.transform.rotation = playerSpawnPoints[spawnIndex].rotation;
             player1.GetComponent<CharacterController>().enabled = true;
+            Debug.Log($"moved player 1 to {roundType} spawn point");
         }
         
         // move player 2  
@@ -125,6 +273,7 @@ public class RoundManager : MonoBehaviour
             player2.transform.position = playerSpawnPoints[spawnIndex + 1].position;
             player2.transform.rotation = playerSpawnPoints[spawnIndex + 1].rotation;
             player2.GetComponent<CharacterController>().enabled = true;
+            Debug.Log($"moved player 2 to {roundType} spawn point");
         }
     }
     
@@ -144,9 +293,26 @@ public class RoundManager : MonoBehaviour
         }
     }
     
+    private void RevivePlayers()
+    {
+        // revive both players at start of each round
+        if (player1 != null)
+        {
+            HealthSystem p1Health = player1.GetComponent<HealthSystem>();
+            if (p1Health != null) p1Health.Revive();
+        }
+        
+        if (player2 != null)
+        {
+            HealthSystem p2Health = player2.GetComponent<HealthSystem>();
+            if (p2Health != null) p2Health.Revive();
+        }
+    }
+    
+    // called when player collects pill (hospital round)
     public void OnCollectibleGathered(MonoBehaviour player)
     {
-        if (roundEnded) return;
+        if (roundEnded || !playersCanMove) return;
         
         if (player == player1)
         {
@@ -164,107 +330,123 @@ public class RoundManager : MonoBehaviour
         // check for win condition
         if (player1Score >= collectiblesToWin)
         {
-            OnPlayerWin(player1, "player 1");
+            OnRoundWin(player1, "player 1");
         }
         else if (player2Score >= collectiblesToWin)
         {
-            OnPlayerWin(player2, "player 2");
+            OnRoundWin(player2, "player 2");
         }
     }
     
-    private void UpdateScoreUI()
+    // called when player reaches finish line (forest round)
+    public void OnFinishLineReached(MonoBehaviour player)
     {
-        if (player1ScoreText != null)
-            player1ScoreText.text = $"player 1: {player1Score}/{collectiblesToWin}";
+        if (roundEnded || !playersCanMove || currentRound != RoundType.Forest) return;
         
-        if (player2ScoreText != null)
-            player2ScoreText.text = $"player 2: {player2Score}/{collectiblesToWin}";
+        string winnerName = (player == player1) ? "player 1" : "player 2";
+        Debug.Log($"{winnerName} reached the finish line first!");
+        
+        OnRoundWin(player, winnerName);
     }
     
-    private void OnPlayerWin(MonoBehaviour winner, string winnerName)
+    // called when player dies (parking lot round)
+    public void OnPlayerDeath(MonoBehaviour deadPlayer)
+    {
+        if (roundEnded || !playersCanMove || currentRound != RoundType.ParkingLot) return;
+        
+        MonoBehaviour winner = (deadPlayer == player1) ? player2 : player1;
+        string winnerName = (winner == player1) ? "player 1" : "player 2";
+        
+        Debug.Log($"{winnerName} wins by elimination!");
+        
+        OnRoundWin(winner, winnerName);
+    }
+    
+    private void OnRoundWin(MonoBehaviour winner, string winnerName)
     {
         if (roundEnded) return;
         roundEnded = true;
         
         Debug.Log($"{winnerName} wins the {currentRound} round!");
         
-        // show winner text
-        if (winnerText != null)
-        {
-            winnerText.text = $"{winnerName} wins {currentRound} round!";
-            winnerText.gameObject.SetActive(true);
-        }
+        // update round wins
+        if (winner == player1)
+            player1RoundWins++;
+        else
+            player2RoundWins++;
         
-        // activate winning effects
-        StartCoroutine(HandleWinSequence(winner, winnerName));
+        UpdateRoundWinsUI();
+        
+        // disable player movement
+        SetPlayersCanMove(false);
+        
+        // show win panel and handle progression
+        StartCoroutine(HandleRoundWinSequence(winner, winnerName));
     }
     
-    private IEnumerator HandleWinSequence(MonoBehaviour winner, string winnerName)
+    private IEnumerator HandleRoundWinSequence(MonoBehaviour winner, string winnerName)
     {
-        // activate winning lights
+        // activate winning effects
         foreach (GameObject light in winningLights)
         {
-            if (light != null)
-                light.SetActive(true);
+            if (light != null) light.SetActive(true);
         }
+        if (winPortal != null) winPortal.SetActive(true);
         
-        // show portal effect
-        if (winPortal != null)
+        // show appropriate win panel
+        if (winner == player1 && player1WinPanel != null)
         {
-            winPortal.SetActive(true);
+            player1WinPanel.SetActive(true);
+            Debug.Log("showing player 1 win panel");
         }
-        
-        // blackout the loser
-        if (winner == player1 && player2BlackoutScreen != null)
+        else if (winner == player2 && player2WinPanel != null)
         {
-            player2BlackoutScreen.SetActive(true);
+            player2WinPanel.SetActive(true);
+            Debug.Log("showing player 2 win panel");
         }
-        else if (winner == player2 && player1BlackoutScreen != null)
+        
+        // wait for win panel duration
+        yield return new WaitForSeconds(winPanelDuration);
+        
+        // hide win panel and effects
+        if (player1WinPanel != null) player1WinPanel.SetActive(false);
+        if (player2WinPanel != null) player2WinPanel.SetActive(false);
+        if (winPortal != null) winPortal.SetActive(false);
+        foreach (GameObject light in winningLights)
         {
-            player1BlackoutScreen.SetActive(true);
+            if (light != null) light.SetActive(false);
         }
         
-        // wait for dramatic effect
-        yield return new WaitForSeconds(transitionDelay);
-        
-        // progress to next round
-        ProgressToNextRound();
+        // check if game is over (best 2 out of 3)
+        if (player1RoundWins + player2RoundWins >= 3)
+        {
+            HandleGameCompletion();
+        }
+        else
+        {
+            // progress to next round
+            ProgressToNextRound();
+        }
     }
     
     private void ProgressToNextRound()
     {
         RoundType nextRound = GetNextRound();
         
-        if (nextRound != currentRound)
-        {
-            
-            
-            // reset scores
-            player1Score = 0;
-            player2Score = 0;
-            roundEnded = false;
-            
-            // hide win effects
-            if (winPortal != null) winPortal.SetActive(false);
-            foreach (GameObject light in winningLights)
-            {
-                if (light != null) light.SetActive(false);
-            }
-            
-           
-            if (player1BlackoutScreen != null) player1BlackoutScreen.SetActive(false);
-            if (player2BlackoutScreen != null) player2BlackoutScreen.SetActive(false);
-            if (winnerText != null) winnerText.gameObject.SetActive(false);
-            
-           
-            SetupRound(nextRound);
-            UpdateScoreUI();
-        }
-        else
-        {
-           
-            HandleGameCompletion();
-        }
+        Debug.Log($"progressing from {currentRound} to {nextRound}");
+        
+        // reset round scores (not round wins)
+        player1Score = 0;
+        player2Score = 0;
+        roundEnded = false;
+        
+        // setup next round
+        SetupRound(nextRound);
+        UpdateScoreUI();
+
+        
+        // show start sequence for new round
+        StartCoroutine(ShowStartSequence());
     }
     
     private RoundType GetNextRound()
@@ -276,7 +458,7 @@ public class RoundManager : MonoBehaviour
             case RoundType.Forest:
                 return RoundType.ParkingLot;
             case RoundType.ParkingLot:
-                return RoundType.ParkingLot; // game complete - stay on final round
+                return RoundType.ParkingLot; // shouldn't happen
             default:
                 return RoundType.Hospital;
         }
@@ -284,77 +466,84 @@ public class RoundManager : MonoBehaviour
     
     private void HandleGameCompletion()
     {
-        // show final completion message
-        if (winnerText != null)
+        gameEnded = true;
+        string finalWinner;
+        int winnerRounds;
+
+        if (player1RoundWins > player2RoundWins) 
+        { finalWinner = "player 1";
+            winnerRounds = player1RoundWins;
+        }
+        else 
         {
-            winnerText.text = "game done";
-            winnerText.gameObject.SetActive(true);
+            finalWinner = "player 2";
+            winnerRounds = player2RoundWins;
+
+        }
+
+        
+        Debug.Log($"GAME OVER! {finalWinner} wins overall with {(player1RoundWins >= 2 ? player1RoundWins : player2RoundWins)} round wins!");
+        
+        // show final winner message
+        if (finalWinnerText != null)
+        {
+            finalWinnerText.text = $"{finalWinner} wins the game!\nFinal Score: {player1RoundWins} - {player2RoundWins}";
+            finalWinnerText.gameObject.SetActive(true);
         }
         
-        Debug.Log("all rounds done");
-        // add any final game completion logic here
+        // keep players unable to move
+        SetPlayersCanMove(false);
     }
     
-    // method to restart current round
-    public void RestartRound()
+    private void UpdateScoreUI()
+    {
+        if (player1ScoreText != null)
+            player1ScoreText.text = $"player 1: {player1Score}/{collectiblesToWin}";
+        
+        if (player2ScoreText != null)
+            player2ScoreText.text = $"player 2: {player2Score}/{collectiblesToWin}";
+    }
+    
+    private void UpdateRoundWinsUI()
+    {
+        if (roundWinsText != null)
+            roundWinsText.text = $"round wins - p1: {player1RoundWins}  p2: {player2RoundWins}";
+    }
+    
+    // public method to restart entire game
+    public void RestartGame()
     {
         player1Score = 0;
         player2Score = 0;
+        player1RoundWins = 0;
+        player2RoundWins = 0;
         roundEnded = false;
+        gameEnded = false;
         
-        // hide all win effects
-        if (winPortal != null)
-            winPortal.SetActive(false);
-        
+        // hide all ui
+        if (player1WinPanel != null) player1WinPanel.SetActive(false);
+        if (player2WinPanel != null) player2WinPanel.SetActive(false);
+        if (finalWinnerText != null) finalWinnerText.gameObject.SetActive(false);
+        if (winPortal != null) winPortal.SetActive(false);
         foreach (GameObject light in winningLights)
         {
-            if (light != null)
-                light.SetActive(false);
+            if (light != null) light.SetActive(false);
         }
         
-        // hide blackout screens
-        if (player1BlackoutScreen != null)
-            player1BlackoutScreen.SetActive(false);
-        
-        if (player2BlackoutScreen != null)
-            player2BlackoutScreen.SetActive(false);
-        
-        // hide winner text
-        if (winnerText != null)
-            winnerText.gameObject.SetActive(false);
-        
+        // restart from hospital
+        SetupRound(RoundType.Hospital);
         UpdateScoreUI();
+        UpdateRoundWinsUI();
         
-        // respawn collectibles for current round only
-        CollectibleSpawner currentSpawner = GetCurrentSpawner();
-        if (currentSpawner != null)
-            currentSpawner.RespawnCollectibles();
+        // show start sequence
+        StartCoroutine(ShowStartSequence());
         
-        Debug.Log("round restarted");
+        Debug.Log("game restarted");
     }
     
-    private CollectibleSpawner GetCurrentSpawner()
+    // method for other scripts to check if players can move
+    public bool CanPlayersMove()
     {
-        switch (currentRound)
-        {
-            case RoundType.Hospital:
-                return hospitalSpawner;
-            case RoundType.Forest:
-                return forestSpawner;
-            case RoundType.ParkingLot:
-                return parkingLotSpawner;
-            default:
-                return hospitalSpawner;
-        }
-    }
-    
-    
-    public void SetRound(RoundType roundType)
-    {
-        player1Score = 0;
-        player2Score = 0;
-        roundEnded = false;
-        SetupRound(roundType);
-        UpdateScoreUI();
+        return playersCanMove && !roundEnded && !gameEnded;
     }
 }

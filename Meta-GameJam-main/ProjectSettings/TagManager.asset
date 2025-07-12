@@ -11,6 +11,9 @@ TagManager:
   - Collectible
   - Cure
   - Gun
+  - Ground
+  - Gun
+  - PickUp
   layers:
   - Default
   - TransparentFX
@@ -21,8 +24,8 @@ TagManager:
   - Ground
   - 
   - 
-  - 
-  - 
+  - Player1
+  - Player2
   - 
   - Map
   - 

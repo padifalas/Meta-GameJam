@@ -62,6 +62,14 @@ public class FPC2 : MonoBehaviour
     public GameObject[] objectsToChangeColor; // Array of objects to change color
 
     public GameObject gunGameObject; 
+    [Header("VISUAL EFFECTS")]
+    public ParticleSystem speedSpikes;
+
+    [Header("PAUSE SETTINGS")]
+    [Space(1)]
+    public bool isPaused = false;
+    public GameObject pauseScreen;
+
 
     private void Awake()
     {
@@ -100,7 +108,7 @@ public class FPC2 : MonoBehaviour
         playerInput.Player2.Crouch.performed += ctx => ToggleCrouch(); // Call the ToggleCrouch method when crouch input is performed
 
         // Subscribe to the interact input event
-        playerInput.Player2.Interact.performed += ctx => Interact(); // Interact with switch
+        //playerInput.Player2.Interact.performed += ctx => Interact(); // Interact with switch
 
         playerInput.Player2.Sprint.performed += ctx => Sprinting();
 
@@ -123,6 +131,18 @@ public class FPC2 : MonoBehaviour
         ApplyGravity();
 
         isBoosted = Time.time < speedBoostEndTime; // Check if the speed boost is still active
+
+        if (speedSpikes != null)
+        {
+            if (isBoosted && !speedSpikes.isPlaying)
+            {
+                speedSpikes.Play();
+            }
+            else if (!isBoosted && speedSpikes.isPlaying)
+            {
+                speedSpikes.Stop();
+            }
+        }
     }
 
 
@@ -254,47 +274,47 @@ public class FPC2 : MonoBehaviour
             isCrouching = true;
         }
     }
+    public void PauseMenu()
 
-public void Interact()
     {
-        
-        Transform cameraTransform = player; 
-        
-        
-        // perform a raycast to detect objects
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, pickUpRange))
+        if (isPaused == false)
         {
-           
-            if (hit.collider.CompareTag("Collectible") || hit.collider.CompareTag("Cure"))
-            {
-                CollectibleSystem collectible = hit.collider.GetComponent<CollectibleSystem>();
-                if (collectible != null)
-                {
-                    collectible.OnInteracted(this); 
-                    return;
-                }
-            }
-            
-            // original switch interaction
-            if (hit.collider.CompareTag("Switch"))
-            {
-                // change the material color of the objects in the array
-                foreach (GameObject obj in objectsToChangeColor)
-                {
-                    Renderer renderer = obj.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        renderer.material.color = switchMaterial.color; // set the color to match the switch material color
-                    }
-                }
-            }
+            isPaused = true;
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0;
+            Debug.Log("should pause");
+        }
+
+        else if (isPaused == true)
+        {
+            isPaused = false;
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1;
+            Debug.Log("should unpaused");
         }
     }
 
-    public void ApplySpeedBoost(float duration)
+
+    //if (Physics.Raycast(ray, out hit, pickUpRange))
+    //{
+    //    // Remove the collectible interaction code since we use OnTriggerEnter now
+    //    // Only keep switch interaction
+    //    if (hit.collider.CompareTag("Switch"))
+    //    {
+    //        // change the material color of the objects in the array
+    //        foreach (GameObject obj in objectsToChangeColor)
+    //        {
+    //            Renderer renderer = obj.GetComponent<Renderer>();
+    //            if (renderer != null)
+    //            {
+    //                renderer.material.color = switchMaterial.color; // set the color to match the switch material color
+    //            }
+    //        }
+    //    }
+    //}
+
+
+public void ApplySpeedBoost(float duration)
     {
 
         speedBoostEndTime = Time.time + duration;
@@ -321,6 +341,8 @@ public void Interact()
 
 
 }
+
+
 
 
  

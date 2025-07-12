@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collectibleType: 0
-  interactRange: 3
+  detectionRadius: 3
   floatSpeed: 2
   interactUI: {fileID: 0}
   collectEffect: {fileID: 0}

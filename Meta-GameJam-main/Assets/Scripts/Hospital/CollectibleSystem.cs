@@ -7,7 +7,7 @@ public class CollectibleSystem : MonoBehaviour
     [Header("collectible settings")]
     [Space(5)]
     public CollectibleType collectibleType = CollectibleType.Pill;
-    public float interactRange = 3f;
+    public float detectionRadius = 2f; // radius for showing UI
     public float floatSpeed = 2f;
     public GameObject interactUI; // ui image that shows when player is in range
     
@@ -19,7 +19,7 @@ public class CollectibleSystem : MonoBehaviour
     
     private bool playerInRange = false;
     private bool isCollected = false;
-    private MonoBehaviour nearbyPlayer; // changed to MonoBehaviour to handle both script types
+    private MonoBehaviour nearbyPlayer;
     private Vector3 startPosition;
     private AudioSource audioSource;
     
@@ -54,10 +54,20 @@ public class CollectibleSystem : MonoBehaviour
         if (interactUI != null)
             interactUI.SetActive(false);
         
-        // setup collider
+        // setup trigger collider for collection
         Collider col = GetComponent<Collider>();
         if (col != null)
+        {
             col.isTrigger = true;
+            // Debug.Log($"{collectibleType} collider setup as trigger for collection");
+        }
+        else
+        {
+            // Debug.LogWarning($"no collider found on {collectibleType}! adding sphere collider");
+            SphereCollider sphereCol = gameObject.AddComponent<SphereCollider>();
+            sphereCol.isTrigger = true;
+            sphereCol.radius = 0.5f;
+        }
     }
     
     private void Update()
@@ -77,80 +87,86 @@ public class CollectibleSystem : MonoBehaviour
             glowLight.intensity = 1f + Mathf.Sin(Time.time * 3f) * 0.3f;
         }
         
-        // check for interact input when player is in range
-        if (playerInRange && nearbyPlayer != null)
-        {
-            // the interact method in firstpersoncontrols will handle the raycast
-            // but we need to check if player is looking at us
-            CheckForInteraction();
-        }
+        // radius detection for showing UI
+        CheckForNearbyPlayers();
     }
     
-    private void CheckForInteraction()
+    private void CheckForNearbyPlayers()
     {
-        // get the player transform and camera based on script type
-        Transform playerTransform = null;
-        Transform playerCamera = null;
+        // find all player gameobjects within detection radius for UI display
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRadius);
         
-        if (nearbyPlayer.GetType().Name == "FirstPersonControls")
+        bool foundPlayer = false;
+        foreach (Collider col in nearbyColliders)
         {
-            FirstPersonControls fpc = nearbyPlayer as FirstPersonControls;
-            playerTransform = fpc.transform;
-            playerCamera = fpc.player; // the camera transform
-        }
-        else if (nearbyPlayer.GetType().Name == "FPC2")
-        {
-            // assuming FPC2 has similar structure
-            playerTransform = nearbyPlayer.transform;
-            // get the player camera from FPC2 - adjust this based on your FPC2 script structure
-            playerCamera = nearbyPlayer.transform.Find("player"); // or however you access camera in FPC2
-            if (playerCamera == null)
+            if (col.CompareTag("Player"))
             {
-                // fallback - look for camera component
-                Camera cam = nearbyPlayer.GetComponentInChildren<Camera>();
-                if (cam != null) playerCamera = cam.transform;
+                MonoBehaviour player = col.GetComponent<FirstPersonControls>();
+                if (player == null)
+                    player = col.GetComponent<FPC2>(); // get FPC2 specifically
+                if (player == null)
+                    player = col.GetComponent<MonoBehaviour>(); // fallback
+                
+                if (player != null)
+                {
+                    playerInRange = true;
+                    nearbyPlayer = player;
+                    foundPlayer = true;
+                    
+                    // show UI when player is nearby
+                    if (interactUI != null)
+                        interactUI.SetActive(true);
+                    
+                    break;
+                }
             }
         }
         
-        if (playerCamera == null) return;
-        
-        // raycast from player camera to see if theyre looking at this collectible
-        Ray ray = new Ray(playerCamera.position, playerCamera.forward);
-        RaycastHit hit;
-        
-        if (Physics.Raycast(ray, out hit, interactRange))
+        // if no player found in radius, clear references and hide UI
+        if (!foundPlayer && playerInRange)
         {
-            if (hit.collider.gameObject == gameObject)
-            {
-                // player is looking at this collectible
-                if (interactUI != null)
-                    interactUI.SetActive(true);
-            }
-            else
-            {
-                if (interactUI != null)
-                    interactUI.SetActive(false);
-            }
-        }
-        else
-        {
+            playerInRange = false;
+            nearbyPlayer = null;
+            
+            // hide ui when player leaves radius
             if (interactUI != null)
                 interactUI.SetActive(false);
         }
     }
     
-    public void OnInteracted(MonoBehaviour player)
+    private void OnTriggerEnter(Collider other)
     {
         if (isCollected) return;
         
-        StartCoroutine(CollectItem(player));
+        Debug.Log($"trigger collision detected with: {other.name} (tag: {other.tag})");
+        
+        if (other.CompareTag("Player"))
+        {
+            MonoBehaviour player = other.GetComponent<FirstPersonControls>();
+            if (player == null)
+                player = other.GetComponent<FPC2>(); // get FPC2 specifically
+            if (player == null)
+                player = other.GetComponent<MonoBehaviour>(); // fallback
+            
+            if (player != null)
+            {
+                Debug.Log($"player detected: {player.GetType().Name} - starting collection");
+                StartCoroutine(CollectItem(player));
+            }
+            else
+            {
+                Debug.LogWarning("player tag detected but no valid player script found!");
+            }
+        }
     }
     
     private IEnumerator CollectItem(MonoBehaviour player)
     {
         isCollected = true;
         
-        // hide ui
+        Debug.Log($"🎯 collecting {collectibleType}...");
+        
+        // hide ui immediately
         if (interactUI != null)
             interactUI.SetActive(false);
         
@@ -177,7 +193,10 @@ public class CollectibleSystem : MonoBehaviour
         
         // play sound
         if (collectSound != null && audioSource != null)
+        {
             audioSource.PlayOneShot(collectSound);
+            Debug.Log($"🔊 playing {collectibleType} collection sound");
+        }
         
         // apply effect based on type
         EffectManager effectManager = player.GetComponent<EffectManager>();
@@ -186,50 +205,75 @@ public class CollectibleSystem : MonoBehaviour
             if (collectibleType == CollectibleType.Pill)
             {
                 effectManager.ApplyRandomEffect();
+                Debug.Log("💊 pill collected - random effect applied!");
                 
-                // notify round manager - pass the MonoBehaviour player
+                // notify round manager
                 RoundManager roundManager = FindObjectOfType<RoundManager>();
                 if (roundManager != null)
+                {
                     roundManager.OnCollectibleGathered(player);
+                    Debug.Log("📊 round manager notified of pill collection");
+                }
             }
             else if (collectibleType == CollectibleType.Cure)
             {
                 effectManager.CureAllEffects();
+                Debug.Log("🩺 cure collected - all effects reset!");
             }
         }
+        else
+        {
+            Debug.LogWarning("⚠️ no effect manager found on player!");
+        }
         
-        Debug.Log($"collected {collectibleType} - effect applied!");
-        
-        // destroy the collectible
+        // destroy the collectible gameobject
+        Debug.Log($"💥 destroying {collectibleType} gameobject");
         Destroy(gameObject);
     }
     
-    private void OnTriggerEnter(Collider other)
+    private void OnDrawGizmosSelected()
     {
-        if (other.CompareTag("Player"))
+        // draw detection radius (for UI display)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        
+        // draw collection trigger area
+        Collider col = GetComponent<Collider>();
+        if (col != null)
         {
-            MonoBehaviour player = other.GetComponent<FirstPersonControls>();
-            if (player == null)
-                player = other.GetComponent<MonoBehaviour>(); // this will catch FPC2 or any other script
-            
-            if (player != null)
+            Gizmos.color = Color.red;
+            if (col is SphereCollider)
             {
-                playerInRange = true;
-                nearbyPlayer = player;
+                SphereCollider sphere = col as SphereCollider;
+                Gizmos.DrawWireSphere(transform.position, sphere.radius);
+            }
+            else if (col is BoxCollider)
+            {
+                BoxCollider box = col as BoxCollider;
+                Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
+                Gizmos.DrawWireCube(box.center, box.size);
+                Gizmos.matrix = Matrix4x4.identity;
             }
         }
+        
+        // draw a line up to show collectible height
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.up * 2f);
     }
     
-    private void OnTriggerExit(Collider other)
+    private void OnDrawGizmos()
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = false;
-            nearbyPlayer = null;
-            
-            // hide ui when player leaves
-            if (interactUI != null)
-                interactUI.SetActive(false);
-        }
+        // always visible gizmos for better visualization
+        if (collectibleType == CollectibleType.Pill)
+            Gizmos.color = Color.green;
+        else
+            Gizmos.color = Color.blue;
+        
+        // draw a smaller sphere to show the collectible position
+        Gizmos.DrawSphere(transform.position, 0.2f);
+        
+        // draw detection radius when not selected (more subtle)
+        Gizmos.color = new Color(1f, 1f, 0f, 0.1f); // transparent yellow
+        Gizmos.DrawSphere(transform.position, detectionRadius);
     }
 }

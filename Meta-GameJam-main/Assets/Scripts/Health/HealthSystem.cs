@@ -8,7 +8,7 @@ public class HealthSystem : MonoBehaviour
     [Space(5)]
     public float maxHealth = 100f;
     public float currentHealth;
-    public Slider healthBar; 
+    public Slider healthBar; // UI health bar
     public float healthOrbHealAmount = 25f;
     
     [Header("SIDE EFFECTS")]
@@ -18,7 +18,7 @@ public class HealthSystem : MonoBehaviour
     private FirstPersonControls playerControls;
     private bool isAffectedBySideEffect = false;
     
-   
+    // Side effect variables
     private Vector3 originalCameraPosition;
     private float originalMoveSpeed;
     private float shakeIntensity = 0.1f;
@@ -28,7 +28,7 @@ public class HealthSystem : MonoBehaviour
         currentHealth = maxHealth;
         UpdateHealthBar();
         
-        
+        // Get references
         playerCamera = Camera.main;
         if (playerCamera == null)
             playerCamera = FindObjectOfType<Camera>();
@@ -62,15 +62,15 @@ public class HealthSystem : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         UpdateHealthBar();
         
-        //  side effects based on health 
+        // Apply side effects based on health state
         if (wasFullHealth && healAmount > 0)
         {
-            //  side effect when healing at full 
+            // Strange side effect when healing at full health
             ApplyStrangeSideEffect();
         }
         else if (healAmount > 0)
         {
-            // smaalll side effect when healing normally
+            // Minor side effect when healing normally
             ApplyMinorSideEffect();
         }
     }
@@ -87,7 +87,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-       
+        Debug.Log("Strange side effect: Regenerative Chaos!");
         StartCoroutine(RegenerativeChaos());
     }
     
@@ -95,7 +95,7 @@ public class HealthSystem : MonoBehaviour
     {
         if (isAffectedBySideEffect) return;
         
-        
+        Debug.Log("Minor side effect: Healing Disorientation!");
         StartCoroutine(HealingDisorientation());
     }
     
@@ -103,11 +103,11 @@ public class HealthSystem : MonoBehaviour
     {
         isAffectedBySideEffect = true;
         
-        //  player character growww larger 
+        // Make player character grow larger (scale up)
         Vector3 originalScale = transform.localScale;
         Vector3 targetScale = originalScale * 1.3f;
         
-        // granual scaling
+        // Gradual scaling
         float elapsed = 0;
         while (elapsed < 1f)
         {
@@ -116,10 +116,10 @@ public class HealthSystem : MonoBehaviour
             yield return null;
         }
         
-        // stay big  for hpw long
+        // Stay large for duration
         yield return new WaitForSeconds(sideEffectDuration - 2f);
         
-        // scale back 2 nrmal
+        // Scale back down
         elapsed = 0;
         while (elapsed < 1f)
         {
@@ -136,10 +136,10 @@ public class HealthSystem : MonoBehaviour
     {
         isAffectedBySideEffect = true;
         
-        //  camera shake and slight movement speed reduction
+        // Apply camera shake and slight movement speed reduction
         if (playerControls != null)
         {
-            playerControls.moveSpeed *= 0.8f; //  speed slightly
+            playerControls.moveSpeed *= 0.8f; // Reduce speed slightly
         }
         
         float elapsed = 0;
@@ -147,7 +147,7 @@ public class HealthSystem : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             
-            // cam shake effect
+            // Camera shake effect
             if (playerCamera != null)
             {
                 Vector3 shake = Random.insideUnitSphere * shakeIntensity;
@@ -157,7 +157,7 @@ public class HealthSystem : MonoBehaviour
             yield return null;
         }
         
-        // reseresettt effects
+        // Reset effects
         if (playerCamera != null)
         {
             playerCamera.transform.localPosition = originalCameraPosition;
@@ -171,15 +171,59 @@ public class HealthSystem : MonoBehaviour
         isAffectedBySideEffect = false;
     }
     
-    private void Die()
+    // public method to revive player (useful for respawning)
+public void Revive()
+{
+    currentHealth = maxHealth;
+    UpdateHealthBar();
+    
+    // re-enable player controls
+    MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
+    foreach (MonoBehaviour script in scripts)
     {
-        Debug.Log("u died botch");
-        
+        if (script.GetType().Name == "FirstPersonControls" || script.GetType().Name == "FPC2")
+        {
+            script.enabled = true;
+        }
+    }
+    
+    Debug.Log($"✨ {gameObject.name} revived with full health!");
+}
+    private void Die()  
+    {
+        Debug.Log($"💀 {gameObject.name} died!");
+
+        // notify round manager if we're in parking lot round
+        RoundManager roundManager = FindObjectOfType<RoundManager>();
+        if (roundManager != null)
+        {
+            // get the player script to pass to round manager
+            MonoBehaviour playerScript = GetComponent<FirstPersonControls>();
+            if (playerScript == null)
+                playerScript = GetComponent<FPC2>();
+
+            if (playerScript != null)
+            {
+                roundManager.OnPlayerDeath(playerScript);
+            }
+        }
+
+        // disable player controls
+        MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
+        foreach (MonoBehaviour script in scripts)
+        {
+            if (script.GetType().Name == "FirstPersonControls" || script.GetType().Name == "FPC2")
+            {
+                script.enabled = false;
+            }
+        }
+
+        // optional: add death effects here (particle systems, sounds, etc.)
     }
     
     private void OnTriggerEnter(Collider other)
     {
-        
+        // Handle health orb collection
         if (other.CompareTag("HealthOrb"))
         {
             Heal(healthOrbHealAmount);
